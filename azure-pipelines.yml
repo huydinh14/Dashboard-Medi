@@ -1,0 +1,60 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+pr:
+- feature/*
+- fix/*
+- hotfix/*
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: quanlityCheck
+  displayName: 'Quality Check'
+  jobs:
+  - job: test
+    steps:
+    - script: npm install
+      displayName: 'Install dependencies'
+    - script: CI=true npm test -- --coverage
+      displayName: 'Run unit tests'
+    - task: PublishCodeCoverageResults@1
+      inputs:
+        codeCoverageTool: 'Cobertura'
+        summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage/cobertura-coverage.xml' # string. Required. Summary file. 
+        #pathToSources: # string. Path to Source files. 
+        #reportDirectory: # string. Report directory. 
+        #additionalCodeCoverageFiles: # string. Additional files. 
+        #failIfCoverageEmpty: false # boolean. Fail when code coverage results are missing. Default: false.
+- stage: build
+  dependsOn: quanlityCheck
+  condition: succeeded('quanlityCheck')
+  displayName: 'Build'
+  jobs:
+  - job: build
+    steps:
+    - script: 
+        npm install &&
+        CI=true npm run build
+      displayName: 'Run build'
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/build' # string. Required. Root folder or file to archive. Default: $(Build.BinariesDirectory).
+        includeRootFolder: false # boolean. Required. Prepend root folder name to archive paths. Default: true.
+      # Archive
+        archiveType: 'zip'
+        #sevenZipCompression: 'normal' # 'ultra' | 'maximum' | 'normal' | 'fast' | 'fastest' | 'none'. Optional. Use when archiveType = 7z. 7z compression. Default: normal.
+        #tarCompression: 'gz' # 'gz' | 'bz2' | 'xz' | 'none'. Optional. Use when archiveType = tar. Tar compression. Default: gz.
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip' # string. Required. Archive file to create. Default: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip.
+        replaceExistingArchive: false # boolean. Required. Replace existing archive. Default: true.
+        #verbose: false # boolean. Force verbose output. Default: false.
+        #quiet: false # boolean. Force quiet output. Default: false.
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip' # string. Required. Path to publish. Default: $(Build.ArtifactStagingDirectory).
