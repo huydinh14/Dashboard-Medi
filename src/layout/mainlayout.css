@@ -1,0 +1,33 @@
+
+.main__content {
+    background-color: var(--main-bg);
+    min-height: 100vh;
+    padding: 0px 20px;
+    overflow: hidden;
+}
+
+.main-container {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 20% 80%;
+}
+
+/* .sidebar-main {
+    background-color: blue;
+} */
+
+/* Media queries  */
+
+/* Medidum */
+/* @media screen and (max-width: 1024px) {
+    .main-container {
+        grid-template-columns: 0.3f 0.7f
+    }
+  } */
+
+  /* Small */
+  /* @media screen and (max-width: 600px) {
+    .main-container {
+        grid-template-columns: 15% 35%;
+    }
+  } */
