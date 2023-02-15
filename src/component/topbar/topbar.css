@@ -40,3 +40,25 @@
 .topbar-right-item ~ .topbar-right-item {
     margin-left: 30px;
 }
+
+.topbar_right-user {
+    display: flex;
+    align-items: center;
+}
+
+.topbar_right-user-image {
+     width: 40px;
+     height: 40%;
+     border-radius: 50%;
+     overflow: hidden;
+     margin-right: 10px;
+}
+
+.topbar_right-user-image > img {
+    width: 100%;
+}
+
+.topbar_right-user-name {
+    font-size: 1rem;
+    font-weight: 600;
+}

@@ -5,43 +5,43 @@
         "icon": "bx bx-category-alt"
     },
     {
-        "display_name": "Customers",
-        "route": "/customers",
-        "icon": "bx bx-user-pin"
+        "display_name": "Doctors",
+        "route": "/doctors",
+        "icon": "bx bxs-user-pin"
     },
     {
-        "display_name": "Products",
-        "route": "/products",
-        "icon": "bx bx-package"
+        "display_name": "Patients",
+        "route": "/patients",
+        "icon": "bx bx-body"
     },
     {
-        "display_name": "Orders",
-        "route": "/orders",
-        "icon": "bx bx-cart"
+        "display_name": "HearthBeat-IOT",
+        "route": "/hearth_beat_iot",
+        "icon": "bx bxs-devices"
+    },
+    {
+        "display_name": "Pathogens",
+        "route": "/pathogens",
+        "icon": "bx bxs-virus"
+    },
+    {
+        "display_name": "Conditions-Rule",
+        "route": "/condition_rule",
+        "icon": "bx bxs-blanket"
+    },
+    {
+        "display_name": "Hospitals",
+        "route": "/hospitals",
+        "icon": "bx bxs-clinic"
+    },
+    {
+        "display_name": "Medical Records",
+        "route": "/media_records",
+        "icon": "bx bxs-bookmark-alt-plus"
     },
     {
         "display_name": "Analytics",
         "route": "/analytics",
         "icon": "bx bx-bar-chart-alt"
-    },
-    {
-        "display_name": "categories",
-        "route": "/categories",
-        "icon": "bx bx-list-ol"
-    },
-    {
-        "display_name": "discount",
-        "route": "/discount",
-        "icon": "bx bx-gift"
-    },
-    {
-        "display_name": "inventory",
-        "route": "/inventory",
-        "icon": "bx bx-store-alt"
-    },
-    {
-        "display_name": "settings",
-        "route": "/settings",
-        "icon": "bx bx-cog"
     }
 ]

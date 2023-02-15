@@ -6,8 +6,8 @@
   --second-bg: #fafafb;
   --txt-color: #455560;
   --txt-white: #fff;
-  --main-color: #349eff;
-  --second-color: #62b4ff;
+  --main-color: #2C803A;
+  --second-color: #3bab4d;
   --box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 
   --main-bg-light: #ffffff;
@@ -38,7 +38,7 @@
 
   --sidebar-width: 300px;
   --border-radius: 15px;
-  --topnav-height: 110px;
+  --topnav-height: 80px;
   --transition-cubic: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -84,4 +84,44 @@ input {
 
 input:focus {
   border: 2px solid var(--main-color);
+}
+
+.page-header {
+  margin-top: 10px;
+  margin-bottom: 30px;
+  text-transform: capitalize;
+  font-size: large;
+}
+
+.card {
+  padding: 30px;
+  margin-bottom: 30px;
+  background-color: var(--main-bg);
+  box-shadow: rgba(80, 78, 78, 0.24) 0px 3px 8px;
+  border-radius: var(--border-radius);
+}
+
+.full-height { 
+  height: 100%;
+}
+
+.card.full-height {
+  height: calc(100% - 30px);
+}
+
+.card-header { 
+  text-transform: capitalize;
+}
+
+.card-header ~ .card-header { 
+  margin-top: 30px;
+}
+
+.card-footer{
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.card.card-body-cus {
+  height: calc(100% - 30px);
 }

@@ -4,11 +4,11 @@
         "content": "Curabitur id eros quis nunc suscipit blandit"
     },
     {
-        "icon": "bx bx-package",
+        "icon": "bx bx-error",
         "content": "Duis malesuada justo eu sapien elementum, in semper diam posuere"
     },
     {
-        "icon": "bx bx-cart",
+        "icon": "bx bx-error",
         "content": "Donec at nisi sit amet tortor commodo porttitor pretium a erat"
     },
     {
@@ -16,7 +16,7 @@
         "content": "In gravida mauris et nisi"
     },
     {
-        "icon": "bx bx-cart",
+        "icon": "bx bx-error",
         "content": "Curabitur id eros quis nunc suscipit blandit"
     }
 ]

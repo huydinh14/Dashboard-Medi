@@ -1,22 +1,37 @@
 [
     {
-        "icon": "bx bx-shopping-bag",
-        "count": "1,995",
-        "title": "Total sales"
+        "icon": "bx bx-user-pin",
+        "count": "143",
+        "title": "Total Doctors"
     },
     {
-        "icon": "bx bx-cart",
+        "icon": "bx bx-body",
         "count": "2,001",
-        "title": "Daily visits"
+        "title": "Patients"
     },
     {
-        "icon": "bx bx-dollar-circle",
-        "count": "$2,632",
-        "title": "Total income"
+        "icon": "bx bx-devices",
+        "count": "120",
+        "title": "HearthBeat-IOT"
     },
     {
-        "icon": "bx bx-receipt",
+        "icon": "bx bxs-virus",
+        "count": "7,423",
+        "title": "Pathogens"
+    },
+    {
+        "icon": "bx bx-blanket",
+        "count": "999",
+        "title": "Conditions-Rule"
+    },
+    {
+        "icon": "bx bx-clinic",
         "count": "1,711",
-        "title": "Total orders"
+        "title": "Hospitals"
+    },
+    {
+        "icon": "bx bx-bookmark-alt-plus",
+        "count": "1,711",
+        "title": "Medical Records"
     }
 ]
