@@ -52,34 +52,34 @@ const chartOptions = {
   },
 };
 
-const topCustomers = {
-  head: ["user", "total orders", "total spending"],
+const topConditionRules = {
+  head: ["name", "total used", "total hospital"],
   body: [
     {
-      username: "john doe",
+      username: "Law of diabetes",
       order: "490",
-      price: "$15,870",
+      price: "15",
     },
     {
-      username: "frank iva",
+      username: "Law of pneumonia",
       order: "250",
-      price: "$12,251",
+      price: "20",
     },
     {
-      username: "anthony baker",
+      username: "Law of cancer",
       order: "120",
-      price: "$10,840",
+      price: "13",
     },
     {
-      username: "frank iva",
+      username: "Law infarction",
       order: "110",
-      price: "$9,251",
+      price: "15",
     },
     {
-      username: "anthony baker",
+      username: "Law of asthma",
       order: "80",
-      price: "$8,840",
-    },
+      price: "18",
+    }
   ],
 };
 
@@ -97,47 +97,47 @@ const renderCusomerBody = (item, index) => (
 
 const latestOrders = {
   header: [
-      "order id",
-      "user",
-      "total price",
+      "doctor id",
+      "name",
+      "total medical",
       "date",
-      "status"
+      "hospital name"
   ],
   body: [
       {
-          id: "#OD1711",
-          user: "john doe",
-          date: "17 Jun 2021",
-          price: "$900",
-          status: "shipping"
+          id: "#DT1711",
+          user: "Dam Bich Kim",
+          date: "17 Jun 2023",
+          price: "420",
+          status: "BV Quan Doi 175"
       },
       {
-          id: "#OD1712",
-          user: "frank iva",
-          date: "1 Jun 2021",
-          price: "$400",
-          status: "paid"
+          id: "#DT1712",
+          user: "To Ngoc Van",
+          date: "1 Jun 2023",
+          price: "300",
+          status: "BV Binh Dan"
       },
       {
-          id: "#OD1713",
-          user: "anthony baker",
-          date: "27 Jun 2021",
-          price: "$200",
-          status: "pending"
+          id: "#DT1713",
+          user: "Nguyen Hai",
+          date: "27 Jun 2023",
+          price: "280",
+          status: "BV Hoan My"
       },
       {
-          id: "#OD1712",
-          user: "frank iva",
-          date: "1 Jun 2021",
-          price: "$400",
-          status: "paid"
+          id: "#DT1712",
+          user: "Bui Tuan",
+          date: "1 Jun 2023",
+          price: "220",
+          status: "BV Dai Học Y Duoc"
       },
       {
-          id: "#OD1713",
-          user: "anthony baker",
-          date: "27 Jun 2021",
-          price: "$200",
-          status: "refund"
+          id: "#DT1713",
+          user: "Dam Hieu",
+          date: "27 Jun 2023",
+          price: "120",
+          status: "BV Cho Ray"
       }
   ]
 }
@@ -196,13 +196,13 @@ const Dashboard = () => {
         <div className="col-4">
           <div className="card">
             <div className="card-header">
-              <h3>Top Customer</h3>
+              <h3>Top Conditions-Rule</h3>
             </div>
             <div className="card-body-cus">
                 <Table 
-                headData= {topCustomers.head}
+                headData= {topConditionRules.head}
                 renderHead={(item, index) => renderCusomerHead(item, index)}
-                bodyData = {topCustomers.body}
+                bodyData = {topConditionRules.body}
                 renderBody={(item, index) => renderCusomerBody(item, index)}/>
             </div>
             <div className="card-footer">
@@ -213,7 +213,7 @@ const Dashboard = () => {
         <div className="col-8">
           <div className="card">
             <div className="card-header">
-              <h3>latest orders</h3>
+              <h3>Top Doctors</h3>
             </div>
             <div className="card-body">
               <Table 
