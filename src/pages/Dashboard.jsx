@@ -53,32 +53,27 @@ const chartOptions = {
 };
 
 const topConditionRules = {
-  head: ["name", "total used", "total hospital"],
+  head: ["name", "total used"],
   body: [
     {
       username: "Law of diabetes",
       order: "490",
-      price: "15",
     },
     {
       username: "Law of pneumonia",
       order: "250",
-      price: "20",
     },
     {
       username: "Law of cancer",
       order: "120",
-      price: "13",
     },
     {
       username: "Law infarction",
       order: "110",
-      price: "15",
     },
     {
       username: "Law of asthma",
       order: "80",
-      price: "18",
     }
   ],
 };
@@ -196,7 +191,7 @@ const Dashboard = () => {
         <div className="col-4">
           <div className="card">
             <div className="card-header">
-              <h3>Top Conditions-Rule</h3>
+              <h3>Top 5 Conditions-Rule</h3>
             </div>
             <div className="card-body-cus">
                 <Table 
@@ -205,15 +200,15 @@ const Dashboard = () => {
                 bodyData = {topConditionRules.body}
                 renderBody={(item, index) => renderCusomerBody(item, index)}/>
             </div>
-            <div className="card-footer">
-              <Link to ='/'>View all</Link>
-            </div>
+            {/* <div className="card-footer"> */}
+              {/* <Link to ='/'>View all</Link> */}
+            {/* </div> */}
           </div>
         </div>
         <div className="col-8">
           <div className="card">
             <div className="card-header">
-              <h3>Top Doctors</h3>
+              <h3>Top 5 Doctors</h3>
             </div>
             <div className="card-body">
               <Table 
@@ -222,9 +217,9 @@ const Dashboard = () => {
                 bodyData = {latestOrders.body}
                 renderBody={(item, index) => renderOrderBody(item, index)}/>
             </div>
-            <div className="card-footer">
-              <Link to='/'>View all</Link>
-            </div>
+            {/* <div className="card-footer"> */}
+              {/* <Link to ='/'>View all</Link> */}
+            {/* </div> */}
           </div>
         </div>
       </div>

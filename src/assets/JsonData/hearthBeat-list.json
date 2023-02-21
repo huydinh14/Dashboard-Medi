@@ -1,0 +1,14 @@
+[{"id":1,"name":"HBeat-MH370","address_mac":"DB-BA-CB-13-HG-34","hospital":"BV Hoan My","status":"active"},
+{"id":2,"name":"HBeat-MH371","address_mac":"DB-BA-CB-13-HG-35","hospital":"BV 175","status":"inactive"},
+{"id":3,"name":"HBeat-MH372","address_mac":"DB-BA-CB-13-HG-36","hospital":"BV Tam Anh","status":"active"},
+{"id":4,"name":"HBeat-MH373","address_mac":"DB-BA-CB-13-HG-37","hospital":"BV Hoan My","status":"active"},
+{"id":5,"name":"HBeat-MH374","address_mac":"DB-BA-CB-13-HG-38","hospital":"BV 175","status":"inactive"},
+{"id":6,"name":"HBeat-MH375","address_mac":"DB-BA-CB-13-HG-39","hospital":"BV Hoan My","status":"active"},
+{"id":7,"name":"HBeat-MH376","address_mac":"DB-BA-CB-13-HG-40","hospital":"BV 175","status":"active"},
+{"id":8,"name":"HBeat-MH377","address_mac":"DB-BA-CB-13-HG-41","hospital":"BV Hoan My","status":"active"},
+{"id":9,"name":"HBeat-MH378","address_mac":"DB-BA-CB-13-HG-42","hospital":"BV 175","status":"active"},
+{"id":10,"name":"HBeat-MH379","address_mac":"DB-BA-CB-13-HG-43","hospital":"BV Hoan My","status":"inactive"},
+{"id":11,"name":"HBeat-MH380","address_mac":"DB-BA-CB-13-HG-44","hospital":"BV 175","status":"active"},
+{"id":12,"name":"HBeat-MH381","address_mac":"DB-BA-CB-13-HG-45","hospital":"BV Hoan My","status":"active"},
+{"id":13,"name":"HBeat-MH382","address_mac":"DB-BA-CB-13-HG-46","hospital":"BV 175","status":"active"}
+]

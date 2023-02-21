@@ -1,0 +1,14 @@
+[{"id":1,"name":"Covid-19","description":"DB-BA-CB-13-HG-34","Conditions_Rule_Name":"BV Hoan My"},
+{"id":2,"name":"Law of diabetes","description":"DB-BA-CB-13-HG-35","Conditions_Rule_Name":"BV 175"},
+{"id":3,"name":"Law of pneumonia","description":"DB-BA-CB-13-HG-36","Conditions_Rule_Name":"BV Tam Anh"},
+{"id":4,"name":"Law infarction","description":"DB-BA-CB-13-HG-37","Conditions_Rule_Name":"BV Hoan My"},
+{"id":5,"name":"Law of pneumonia","description":"DB-BA-CB-13-HG-38","Conditions_Rule_Name":"BV 175"},
+{"id":6,"name":"Law infarction","description":"DB-BA-CB-13-HG-39","Conditions_Rule_Name":"BV Hoan My"},
+{"id":7,"name":"Law of pneumonia","description":"DB-BA-CB-13-HG-40","Conditions_Rule_Name":"BV 175"},
+{"id":8,"name":"Law infarction","description":"DB-BA-CB-13-HG-41","Conditions_Rule_Name":"BV Hoan My"},
+{"id":9,"name":"Law of pneumonia","description":"DB-BA-CB-13-HG-42","Conditions_Rule_Name":"BV 175"},
+{"id":10,"name":"Law of cancer","description":"DB-BA-CB-13-HG-43","Conditions_Rule_Name":"BV Hoan My"},
+{"id":11,"name":"Law of pneumonia","description":"DB-BA-CB-13-HG-44","Conditions_Rule_Name":"BV 175"},
+{"id":12,"name":"Law of cancer","description":"DB-BA-CB-13-HG-45","Conditions_Rule_Name":"BV Hoan My"},
+{"id":13,"name":"Law of cancer","description":"DB-BA-CB-13-HG-46","Conditions_Rule_Name":"BV 175"}
+]

@@ -1,6 +1,6 @@
 
 .table-wrapper {
-    overflow-y: auto;
+    overflow: hidden !important;
 }
 
 table {
@@ -25,4 +25,33 @@ th, td {
 tbody > tr:hover {
     background-color: var(--main-color);
     color: var(--txt-white);
-} 
+}
+
+.table_pagination {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.table_pagination-item ~ .table_pagination-item {
+    margin-left: 10px;
+}
+
+.table_pagination-item {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--second-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.table_pagination-item.active, .table_pagination-item:hover {
+    background-color: var(--main-color);
+    color: var(--txt-white);
+    font-weight: 600;
+}

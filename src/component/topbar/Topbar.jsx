@@ -1,7 +1,7 @@
 import React from "react";
 import "./topbar.css";
 import Dropdown from "../dropdown/Dropdown";
-
+import Thememenu from "../thememenu/Thememenu";
 import notifications from "../../assets/JsonData/notification.json";
 import { Link } from "react-router-dom";
 import user_image from "../../assets/images/noAvatar.png";
@@ -62,7 +62,7 @@ const Topbar = () => {
           />
         </div>
         <div className="topbar-right-item">
-          <Dropdown />
+          <Thememenu />
         </div>
       </div>
     </div>

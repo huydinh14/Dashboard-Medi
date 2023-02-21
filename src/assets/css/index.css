@@ -71,6 +71,9 @@ button {
   bottom: 0;
   outline: 0;
   color: var(--txt-color);
+  background-color: transparent;
+  border-radius: 3px;
+  padding: 2px;
 }
 
 ul {
@@ -113,7 +116,7 @@ input:focus {
   text-transform: capitalize;
 }
 
-.card-header ~ .card-header { 
+.card > div ~ div{ 
   margin-top: 30px;
 }
 
@@ -122,6 +125,67 @@ input:focus {
   text-transform: capitalize;
 }
 
-.card.card-body-cus {
-  height: calc(100% - 30px);
+.light-background {
+  background-color: var(--main-bg-light);
+  color: #000;
+}
+
+.dark-background {
+  background-color: var(--main-bg-dark);
+  color: #fff;
+}
+
+.blue-color {
+  background-color: var(--main-color-blue);
+  color: #fff;
+}
+
+.red-color {
+  background-color: var(--main-color-red);
+  color: #fff;
+}
+
+.cyan-color {
+  background-color: var(--main-color-cyan);
+  color: #fff;
+}
+
+.green-color {
+  background-color: var(--main-color-green);
+  color: #fff;
+}
+
+.orange-color {
+  background-color: var(--main-color-orange);
+  color: #fff;
+}
+
+.badge.bg-success {
+  border: 1px solid var(--main-color-green);
+  padding: 5px;
+  border-radius: 5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.badge.bg-danger {
+  border: 1px solid var(--main-color-orange);
+  padding: 5px;
+  border-radius: 5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn.btn-add > button{
+  width: max-content;
+  padding: 5px;
+  margin-bottom: 15px;
+  border: 1px solid var(--txt-color);
+  font-weight: 600 !important;
+  box-shadow: var(--box-shadow);
+}
+
+.btn.btn-add :hover {
+  background-color: var(--main-color);
+  color: #fff;
 }
