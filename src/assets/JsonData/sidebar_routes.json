@@ -45,7 +45,7 @@
         "display_name": "Analytics",
         "route": "/analytics",
         "icon": "bx bx-bar-chart-alt",
-        "role": "admin"
+        "role": "user"
     },
     {
         "display_name": "Statistics",
