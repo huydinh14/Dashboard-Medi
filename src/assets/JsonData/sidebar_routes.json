@@ -2,46 +2,55 @@
     {
         "display_name": "Dashboard",
         "route": "/",
-        "icon": "bx bx-category-alt"
+        "icon": "bx bx-category-alt",
+        "role": "user"
     },
     {
         "display_name": "Doctors",
         "route": "/doctors",
-        "icon": "bx bxs-user-pin"
+        "icon": "bx bxs-user-pin",
+        "role": "user"
     },
     {
         "display_name": "Patients",
         "route": "/patients",
-        "icon": "bx bx-body"
+        "icon": "bx bx-body",
+        "role": "user"
     },
     {
         "display_name": "HearthBeat-IOT",
         "route": "/hearth_beat_iot",
-        "icon": "bx bxs-devices"
-    },
-    {
-        "display_name": "Pathogens",
-        "route": "/pathogens",
-        "icon": "bx bxs-virus"
+        "icon": "bx bxs-devices",
+        "role": "user"
     },
     {
         "display_name": "Conditions-Rule",
         "route": "/condition_rule",
-        "icon": "bx bxs-blanket"
+        "icon": "bx bxs-blanket",
+        "role": "user"
     },
     {
         "display_name": "Hospitals",
         "route": "/hospitals",
-        "icon": "bx bxs-clinic"
+        "icon": "bx bxs-clinic",
+        "role": "user"
     },
     {
         "display_name": "Medical Records",
         "route": "/media_records",
-        "icon": "bx bxs-bookmark-alt-plus"
+        "icon": "bx bxs-bookmark-alt-plus",
+        "role": "user"
     },
     {
         "display_name": "Analytics",
         "route": "/analytics",
-        "icon": "bx bx-bar-chart-alt"
+        "icon": "bx bx-bar-chart-alt",
+        "role": "admin"
+    },
+    {
+        "display_name": "Statistics",
+        "route": "/statictis",
+        "icon": "bx bxs-coin-stack",
+        "role": "admin"
     }
 ]

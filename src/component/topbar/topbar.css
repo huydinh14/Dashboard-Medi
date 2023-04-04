@@ -62,3 +62,29 @@
     font-size: 1rem;
     font-weight: 600;
 }
+
+.topbar_right-login{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.topbar_right-user-au{
+    font-size: 0.8rem;
+    color: var(--txt-color);
+    margin-right: 10px;
+    font-weight: bold;
+    color: red;
+    border: 1px solid red;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.topbar_button_audio{
+    display: none;
+}

@@ -1,37 +1,32 @@
 [
     {
         "icon": "bx bx-user-pin",
-        "count": "143",
+        "count": "0",
         "title": "Total Doctors"
     },
     {
         "icon": "bx bx-body",
-        "count": "2,001",
+        "count": "0",
         "title": "Patients"
     },
     {
         "icon": "bx bx-devices",
-        "count": "120",
+        "count": "0",
         "title": "HearthBeat-IOT"
     },
     {
-        "icon": "bx bxs-virus",
-        "count": "7,423",
-        "title": "Pathogens"
-    },
-    {
-        "icon": "bx bx-blanket",
-        "count": "999",
-        "title": "Condi-Rule"
-    },
-    {
         "icon": "bx bx-clinic",
-        "count": "1,711",
+        "count": "0",
         "title": "Hospitals"
     },
     {
+        "icon": "bx bx-blanket",
+        "count": "0",
+        "title": "Condi-Rule"
+    },
+    {
         "icon": "bx bx-bookmark-alt-plus",
-        "count": "1,711",
+        "count": "0",
         "title": "Medical Records"
     }
 ]

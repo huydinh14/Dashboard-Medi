@@ -52,6 +52,6 @@ tbody > tr:hover {
 
 .table_pagination-item.active, .table_pagination-item:hover {
     background-color: var(--main-color);
-    color: var(--txt-white);
+    color: var(--txt-white) !important;
     font-weight: 600;
 }

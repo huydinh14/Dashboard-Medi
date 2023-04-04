@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Blank from './pages/Blank'
+import MediaRecord from './pages/MediaRecord'
 import Dashboard from './pages/Dashboard'
 import MainLayout from './layout/MainLayout'
 import './assets/css/index.css';
@@ -11,6 +11,7 @@ import HearthBeat from './pages/HearthBeat';
 import Analytics from './pages/Analytics';
 import Pathogens from './pages/Pathogens';
 import Hospitals from './pages/Hospitals';
+import Statistics from './pages/Statistics';
 
 function App() {
     return (
@@ -21,11 +22,12 @@ function App() {
                     <Route path="hearth_beat_iot" element={<HearthBeat />} />
                     <Route path="patients" element={<Patients />} />
                     <Route path="doctors" element={<Doctor />} />
-                    <Route path="condition_rule" element={<Blank />} />
-                    <Route path="pathogens" element={<Pathogens />} />
+                    <Route path="condition_rule"/>
+                    {/* <Route path="pathogens" element={<Pathogens />} /> */}
                     <Route path="hospitals" element={<Hospitals />} />
-                    <Route path="media_records" element={<Blank />} />
+                    <Route path="media_records" element={<MediaRecord />} />
                     <Route path="analytics" element={<Analytics />} />
+                    <Route path="statictis" element={<Statistics />} />
                 </Route>
             </Routes>
         </BrowserRouter>
