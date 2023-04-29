@@ -9,7 +9,7 @@ import Doctor from './pages/Doctor';
 import Patients from './pages/Patients';
 import HearthBeat from './pages/HearthBeat';
 import Analytics from './pages/Analytics';
-import Pathogens from './pages/Pathogens';
+import ConditionRule from './pages/ConditionRule';
 import Hospitals from './pages/Hospitals';
 import Statistics from './pages/Statistics';
 
@@ -22,8 +22,8 @@ function App() {
                     <Route path="hearth_beat_iot" element={<HearthBeat />} />
                     <Route path="patients" element={<Patients />} />
                     <Route path="doctors" element={<Doctor />} />
-                    <Route path="condition_rule"/>
-                    {/* <Route path="pathogens" element={<Pathogens />} /> */}
+                    {/* <Route path="condition_rule"/> */}
+                    <Route path="condition_rule" element={<ConditionRule />} />
                     <Route path="hospitals" element={<Hospitals />} />
                     <Route path="media_records" element={<MediaRecord />} />
                     <Route path="analytics" element={<Analytics />} />

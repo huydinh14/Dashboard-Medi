@@ -78,7 +78,7 @@ const columnDoctor = [
 const dataDoctorTemp = [];
 
 const Doctor = () => {
-  const [dataDoctor, setDataDoctor] = useState(dataDoctorTemp);
+  const [dataDoctor, setDataDoctor] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -105,17 +105,10 @@ const Doctor = () => {
       try {
         const {response} = await doctorApi.getAllDoctor();
         setDataDoctor(response);
-        const specialistList = response.map((item) => {
-          return {
-            text: item,
-            value: item,
-          };
-        });
-        columnDoctor[3].filters = specialistList;
       } catch (error) {
-        console.log("Failed to fetch specialist list: ", error);
+        console.log("Failed to fetch doctor list: ", error);  
       }
-    }
+    };
     fetchAllDoctor();
   }, [])
 

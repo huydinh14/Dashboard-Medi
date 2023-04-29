@@ -5,6 +5,7 @@ import mediaRecordApi from "../api/modules/mediaRecord.api";
 import { toast } from "react-toastify";
 import MediaRecordForm from "../component/media-record-form/MediaRecordForm";
 import DetaiRecord from "../component/detail-record/DetaiRecord";
+import Loading from "../component/loading/Loading";
 
 const { RangePicker } = DatePicker;
 const columns = [
@@ -36,9 +37,7 @@ const columns = [
     width: 150,
     render: (_, { sex }) => (
       <>
-        <span>
-          {sex !== 1 ? "Male" : "Female"}
-        </span>
+        <span>{sex !== 1 ? "Male" : "Female"}</span>
       </>
     ),
   },
@@ -106,6 +105,7 @@ const MediaRecord = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenDetail, setIsModalOpenDetail] = useState(false);
   const [detailRecord, setDetailRecord] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChangeDate = (value) => {
     try {
@@ -121,22 +121,29 @@ const MediaRecord = () => {
   const handleCloseDetailRecord = () => {
     setIsModalOpenDetail(false);
   };
+  
+  const fetchDataRunning = () => {
+    fetchData();
+  }
 
   const handleCancelModelAdd = (value) => {
     setIsModalOpen(value);
     fetchData();
   };
+
   const fetchData = async () => {
+    setIsLoading(true);
     const { response, err } = await mediaRecordApi.getMediaRecord(
       dayjs().subtract(7, "days"),
       dayjs()
     );
+    setIsLoading(false);
     if (response) {
-      console.log("🚀 ~ file: MediaRecord.jsx:107 ~ fetchData ~ response:", response)
       setData(response);
     }
     if (err) toast.error(err);
   };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -157,6 +164,10 @@ const MediaRecord = () => {
 
   return (
     <div>
+    {isLoading ? (
+        <Loading />
+      ) : (
+        <>
       <h2 className="page-header">Media Record</h2>
       <div
         className="btn_nav"
@@ -205,13 +216,20 @@ const MediaRecord = () => {
                   };
                 }}
               />
-              {
-                isModalOpenDetail && <DetaiRecord open={isModalOpenDetail} close={handleCloseDetailRecord} detailRecord = {detailRecord}/>
-              }
+              {isModalOpenDetail && (
+                <DetaiRecord
+                  open={isModalOpenDetail}
+                  close={handleCloseDetailRecord}
+                  detailRecord={detailRecord}
+                  statusFetcch={fetchDataRunning}
+                />
+              )}
             </div>
           </div>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 };

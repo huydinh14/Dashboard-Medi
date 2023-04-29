@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
-  AutoComplete,
   Button,
   Cascader,
-  Checkbox,
   Col,
   Form,
   Input,
@@ -12,13 +10,13 @@ import {
   Row,
   Select,
   DatePicker,
-  Space,
 } from "antd";
 import patientApi from "../../api/modules/patient.api";
 import doctorApi from "../../api/modules/doctor.api";
 import hospitalApi from "../../api/modules/hospital.api";
 import mediaRecordApi from "../../api/modules/mediaRecord.api.js";
 import hearthBeatApi from "../../api/modules/hearthbeat.api";
+import { toast } from "react-toastify";
 
 const MediaRecordForm = ({ handleCancelModelAdd }) => {
   const [patients, setPatients] = useState([]);
@@ -26,12 +24,9 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
   const [hospitals, setHospitals] = useState([]);
   const [IOTs, setIOTs] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [selectedIOT, setSelectedIOT] = useState(null);
+  const [selectedHospital, setSelectedHospital] = useState(null);
 
-  const { Option } = Select;
-  // const patientList = [];
-  // const doctorList = [];
-  // const hospital = [];
-  // const IOT = [];
   const formItemLayout = {
     labelCol: {
       xs: {
@@ -63,15 +58,7 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
     },
   };
 
-  const [autoCompleteResult, setAutoCompleteResult] = useState([]);
   const [form] = Form.useForm();
-
-  const onConChangeDateStart = (date, dateString) => {
-    console.log(date, dateString);
-  };
-  const onConChangeDateEnd = (date, dateString) => {
-    console.log(date, dateString);
-  };
 
   const handleOk = () => {
     handleCancelModelAdd(false);
@@ -80,68 +67,68 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
     handleCancelModelAdd(false);
   };
 
+  const handleCascaderChangeHospital = (value) => {
+    setSelectedHospital(value);
+  }
+
   const handleCascaderChange = (value) => {
     setSelectedPatient(value);
   }
 
+  const handleCascaderChangeIOT = (value) => {
+    setSelectedIOT(value);
+  }
+
+  
+
   const onFinish = async (mediaRecordFN) => {
     await mediaRecordApi.addMediaRecord(mediaRecordFN);
-    //form.resetFields();
+    await patientApi.updatePatientStatus(selectedPatient);
+    await hearthBeatApi.updateHbStatus(selectedIOT, true);
+    await toast.success(`Add MediaRecord success`, {
+      position: "bottom-left",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+    form.resetFields();
     handleCancelModelAdd(false);
   };
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select
-        style={{
-          width: 70,
-        }}
-      >
-        <Option value="86">+86</Option>
-        <Option value="87">+87</Option>
-      </Select>
-    </Form.Item>
-  );
-
-  const onWebsiteChange = (value) => {
-    if (!value) {
-      setAutoCompleteResult([]);
-    } else {
-      setAutoCompleteResult(
-        [".com", ".org", ".net"].map((domain) => `${value}${domain}`)
-      );
-    }
-  };
-  const websiteOptions = autoCompleteResult.map((website) => ({
-    label: website,
-    value: website,
-  }));
 
   useEffect(() => {
+    if(!selectedHospital)
+    {
+      form.setFieldValue("IOT_Id", null);
+      setSelectedIOT(null);
+    }
     const getAllCombobox = async () => {
       try {
         const { response } = await patientApi.getPatientInActive();
         setPatients(response);
         const { responseDoctor } = await doctorApi.getAllDoctorCBB();
         setDoctors(responseDoctor);
-        setDoctors(responseDoctor);
         const { responseHospital } = await hospitalApi.getAllCbb();
         setHospitals(responseHospital);
-        const { responseHB } = await hearthBeatApi.getAllHBCbb();
+        if(!selectedHospital) return;
+        const { responseHB } = await hearthBeatApi.getAllHBCbb(selectedHospital);
         setIOTs(responseHB);
       } catch (error) {
         console.log(error);
       }
     };
     getAllCombobox();
-  }, []);
+  }, [selectedHospital]);
 
   useEffect(() => {
+    if(!selectedPatient) return;
     const getPatientById = async () => {
       try {
         const { response } = await patientApi.getPatientById(
           selectedPatient
         );
-        console.log("🚀 ~ file: MediaRecordForm.jsx:144 ~ getPatientById ~ response:", response)
         form.setFieldsValue({
           Age: response.age,
           gender: response.gender === 1 ? "Male" : "Female",
@@ -214,7 +201,7 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
                   },
                 ]}
               >
-                <Cascader options={hospitals} />
+                <Cascader options={hospitals} onChange={handleCascaderChangeHospital}/>
               </Form.Item>
 
               <Form.Item
@@ -228,7 +215,7 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
                   },
                 ]}
               >
-                <Cascader options={IOTs} />
+                <Cascader options={IOTs}  onChange={handleCascaderChangeIOT }/>
               </Form.Item>
 
               <Form.Item
@@ -241,7 +228,7 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
                   },
                 ]}
               >
-                <DatePicker onChange={onConChangeDateStart} />
+                <DatePicker/>
               </Form.Item>
 
               <Form.Item
@@ -254,7 +241,7 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
                   },
                 ]}
               >
-                <DatePicker onChange={onConChangeDateEnd} />
+                <DatePicker/>
               </Form.Item>
 
               <Form.Item

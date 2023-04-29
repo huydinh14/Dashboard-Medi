@@ -14,7 +14,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../../redux/features/userSlice";
 import { toast } from "react-toastify";
 import Profile from "../profile/Profile";
-import WebSocketClient from '../../socket/websocket.js';
+import WebSocketClient from "../../socket/websocket.js";
 
 const renderNotificationItem = (item, index) => (
   <div className="notification-item" key={index}>
@@ -80,7 +80,7 @@ const Topbar = () => {
   const handleAlertOpenTrick = () => {
     const audio = new Audio(mp3);
     audio.play();
-  }
+  };
 
   const handleCloseProfile = () => {
     setIsProfileVisible(false);
@@ -93,7 +93,7 @@ const Topbar = () => {
         break;
       case "menu-1":
         dispatch(setUser(null));
-        localStorage.removeItem('userDT');
+        localStorage.removeItem("userDT");
         setIsModalOpen(true);
         break;
       default:
@@ -116,7 +116,10 @@ const Topbar = () => {
 
   const handleMessage = async (data) => {
     await setMessage(data.message);
-    console.log("🚀 ~ file: Topbar.jsx:112 ~ handleMessage ~ data.message:", data.message)
+    console.log(
+      "🚀 ~ file: Topbar.jsx:112 ~ handleMessage ~ data.message:",
+      data.message
+    );
   };
   useEffect(() => {
     const warning = async () => {
@@ -133,7 +136,7 @@ const Topbar = () => {
     const socketLink = "ws://localhost:5000";
     const socketCL = new WebSocketClient(socketLink);
     socketCL.connect();
-    socketCL.addListener('warning', handleMessage);
+    socketCL.addListener("warning", handleMessage);
     //setWebSocket(socketCL);
 
     // socket.onopen = () => {
@@ -154,7 +157,7 @@ const Topbar = () => {
     // };
 
     return () => {
-      socketCL.removeListener('message', handleMessage);
+      socketCL.removeListener("message", handleMessage);
       socketCL.disconnect();
     };
   }, []);

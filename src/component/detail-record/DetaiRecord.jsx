@@ -1,7 +1,10 @@
-import { Button, Col, Divider, Drawer, Row } from "antd";
+import { Button, Col, Divider, Drawer, Result, Row } from "antd";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useState } from "react";
 import "./detairecord.css";
 import mediaRecordApi from "../../api/modules/mediaRecord.api";
+import { toast } from "react-toastify";
+import hearthBeatApi from "../../api/modules/hearthbeat.api";
 
 const DescriptionItem = ({ title, content }) => (
   <div className="site-description-item-profile-wrapper">
@@ -10,12 +13,43 @@ const DescriptionItem = ({ title, content }) => (
   </div>
 );
 
-const predictorMediaRecord = async (predictor) => {
-    const {response} = await mediaRecordApi.predictor(predictor);
-};
+const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
+  const [predictorResult, setPredictorResult] = useState("");
 
-const DetaiRecord = ({ open, close, detailRecord }) => {
-  console.log("🚀 ~ file: DetaiRecord.jsx:18 ~ DetaiRecord ~ detailRecord:", detailRecord)
+  const predictorMediaRecord = async (predictor) => {
+    const { response } = await mediaRecordApi.predictor(predictor);
+    if (response) {
+      const percent = parseFloat(response) * 100;
+      setPredictorResult(percent.toFixed(2));
+      await toast.success(`Predictor success with ${percent.toFixed(2)}%`, {
+        position: "bottom-left",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
+  };
+
+  const endMediaRecord = async (medi) => {
+    const { response } = await mediaRecordApi.endMediaRecord(medi._id);
+    await hearthBeatApi.updateHbStatus(medi.iot_id.id, false);
+    close();
+    statusFetcch();
+    if (response) {
+      toast.success(`End MediaRecord success`, {
+        position: "bottom-left",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
+  };
 
   return (
     <>
@@ -26,15 +60,31 @@ const DetaiRecord = ({ open, close, detailRecord }) => {
         onClose={close}
         open={open}
       >
-        <p
-          className="site-description-item-profile-p"
-          style={{
-            marginBottom: 24,
-            fontWeight: 500,
-          }}
-        >
-          Detail MediaRecord
-        </p>
+        <Row>
+          <Col span={18}>
+            <p
+              className="site-description-item-profile-p"
+              style={{
+                marginBottom: 24,
+                fontWeight: 500,
+                marginLeft: -13,
+              }}
+            >
+              Detail MediaRecord
+            </p>
+          </Col>
+          <Col span={6}>
+            {detailRecord.status === 1 && (
+              <Button
+                type="dashed"
+                style={{ color: "red" }}
+                onClick={() => endMediaRecord(detailRecord)}
+              >
+                End MediaRecord
+              </Button>
+            )}
+          </Col>
+        </Row>
         <p className="site-description-item-profile-p">Information</p>
         <Row>
           <Col span={12}>
@@ -132,53 +182,101 @@ const DetaiRecord = ({ open, close, detailRecord }) => {
             <DescriptionItem title="cp" content={detailRecord.vital_signs[2]} />
           </Col>
           <Col span={6}>
-            <DescriptionItem title="trestbps" content={detailRecord.vital_signs[3]} />
+            <DescriptionItem
+              title="trestbps"
+              content={detailRecord.vital_signs[3]}
+            />
           </Col>
           <Col span={6}>
-            <DescriptionItem title="chol" content={detailRecord.vital_signs[4]} />
+            <DescriptionItem
+              title="chol"
+              content={detailRecord.vital_signs[4]}
+            />
           </Col>
           <Col span={6}>
-            <DescriptionItem title="fbs" content={detailRecord.vital_signs[5]} />
-          </Col>
-        </Row>
-        <Row>
-          <Col span={6}>
-            <DescriptionItem title="restecg" content={detailRecord.vital_signs[6]} />
-          </Col>
-          <Col span={6}>
-            <DescriptionItem title="thalach" content={detailRecord.vital_signs[7]} />
-          </Col>
-          <Col span={6}>
-            <DescriptionItem title="exang" content={detailRecord.vital_signs[8]} />
-          </Col>
-          <Col span={6}>
-            <DescriptionItem title="oldpeak" content={detailRecord.vital_signs[9]} />
+            <DescriptionItem
+              title="fbs"
+              content={detailRecord.vital_signs[5]}
+            />
           </Col>
         </Row>
         <Row>
           <Col span={6}>
-            <DescriptionItem title="slope" content={detailRecord.vital_signs[10]} />
+            <DescriptionItem
+              title="restecg"
+              content={detailRecord.vital_signs[6]}
+            />
           </Col>
           <Col span={6}>
-            <DescriptionItem title="ca" content={detailRecord.vital_signs[11]} />
+            <DescriptionItem
+              title="thalach"
+              content={detailRecord.vital_signs[7]}
+            />
           </Col>
           <Col span={6}>
-            <DescriptionItem title="thal" content={detailRecord.vital_signs[12]} />
+            <DescriptionItem
+              title="exang"
+              content={detailRecord.vital_signs[8]}
+            />
+          </Col>
+          <Col span={6}>
+            <DescriptionItem
+              title="oldpeak"
+              content={detailRecord.vital_signs[9]}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col span={6}>
+            <DescriptionItem
+              title="slope"
+              content={detailRecord.vital_signs[10]}
+            />
+          </Col>
+          <Col span={6}>
+            <DescriptionItem
+              title="ca"
+              content={detailRecord.vital_signs[11]}
+            />
+          </Col>
+          <Col span={6}>
+            <DescriptionItem
+              title="thal"
+              content={detailRecord.vital_signs[12]}
+            />
           </Col>
         </Row>
         <Divider />
         <p className="site-description-item-profile-p">Action</p>
         <Row>
-          <Col span={24} style={{ fontWeight: 'bold'}}>
-            <DescriptionItem title="Predictor" content="AI predicts heart rate results right below"/>
+          <Col span={24} style={{ fontWeight: "bold" }}>
+            <DescriptionItem
+              title="Predictor"
+              content="AI predicts heart rate results right below"
+            />
           </Col>
-          <Col span={24}>
-            <DescriptionItem title="Result" content={detailRecord?.target}/>
+          <Col span={3} style={{ fontWeight: "bold" }}>
+            <p style={{ color: "#282A36", marginTop: "3px" }}>Result</p>
           </Col>
-          <Col span={24} style={{textAlign: "center", marginTop: "10px"}}>
-           <Button type="primary" onClick={() => predictorMediaRecord(detailRecord._id)}>
-          Open
-        </Button>
+          <Col span={5}>
+            <p style={{ fontWeight: "bold", color: "red", fontSize: "20px" }}>
+              {predictorResult
+                ? predictorResult + " %"
+                : (parseFloat(detailRecord?.target) * 100).toFixed(2) + " %"}
+            </p>
+          </Col>
+          <Col span={16}>
+            {predictorResult !== 0 && (
+              <CheckCircleIcon style={{ color: "green", marginTop: "3px" }} />
+            )}
+          </Col>
+          <Col span={24} style={{ textAlign: "center", marginTop: "10px" }}>
+            <Button
+              type="primary"
+              onClick={() => predictorMediaRecord(detailRecord._id)}
+            >
+              Predictor
+            </Button>
           </Col>
         </Row>
       </Drawer>
