@@ -5,13 +5,6 @@ import CustomTable from '../component/table/Table';
 
 const Hospitals = () => {
 
-    const hospitalsTableHeader = [
-        "",
-        "name",
-        "address",
-        "phone",
-      ];
-
     const hospitalColumn = [
         {
             title: "",

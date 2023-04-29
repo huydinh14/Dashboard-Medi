@@ -59,6 +59,11 @@
       .container {
         padding: 16px;
       }
+
+      #wifiList {
+        max-height: 200px;
+        overflow-y: auto;
+      }
     </style>
 
     <script>
@@ -79,7 +84,6 @@
       }
 
       function handleLogin() {
-        
         // Prevent the form from submitting
         event.preventDefault();
 
@@ -103,15 +107,54 @@
           alert("Tên đăng nhập hoặc mật khẩu không đúng");
         }
       }
+
+      function scanWifi() {
+        // Get the list element
+        var wifiList = document.getElementById("wifiList");
+
+        // Remove any previous items
+        wifiList.innerHTML = "";
+
+        // Get the available Wi-Fi networks
+        var availableNetworks = ["Network 1", "Network 2", "Network 3"];
+
+        // Loop through the networks and add them to the list
+        for (var i = 0; i < availableNetworks.length; i++) {
+          var network = availableNetworks[i];
+          var listItem = document.createElement("li");
+          listItem.textContent = network;
+          wifiList.appendChild(listItem);
+        }
+      }
     </script>
   </head>
   <body>
-    <form>
-      <div class="container">
-        <div class="title_container">
-          <h2>Đăng nhập Wifi</h2>
+    <div class="container">
+      <div class="title_container">
+        <h2>Đăng nhập Wifi</h2>
+      </div>
+      <form action="/scan" method="post">
+        <button
+          type="submit"
+          style="
+            width: 15%;
+            background-color: transparent;
+            border: 1px solid black;
+            color: black;
+            font-weight: bold;
+          "
+        >
+          Scan
+        </button>
+      </form>
+      <form action="setting">
+        <div>
+          <label>IP Device:</label>
+          ipStr
         </div>
-
+        <ul id="wifiList">
+          <li>st</li>
+        </ul>
         <label for="ssid"><b>SSID</b></label>
         <input
           type="text"
@@ -131,7 +174,7 @@
         />
         <button type="submit" onclick="handleLogin()">Kết nối</button>
         <div id="notification"></div>
-      </div>
-    </form>
+      </form>
+    </div>
   </body>
 </html>

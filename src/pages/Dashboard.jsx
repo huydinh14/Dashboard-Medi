@@ -2,72 +2,23 @@ import React, { useEffect, useState } from "react";
 import statusCards from "../assets/JsonData/status-card-data.json";
 import StatusCard from "../component/status-card/StatusCard";
 import Chart from "react-apexcharts";
-import { Link } from "react-router-dom";
-import Table from "../component/table/Table";
 import moment from "moment";
 import CustomTable from "../component/table/Table";
 import { Space } from "antd";
-import axios from "axios";
-import apiCall from "../api/apiCall";
 import Loading from "../component/loading/Loading";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import dashboardApi from "../api/modules/dashboard.api";
+import { toast } from "react-toastify";
+import WebSocketClient from "../socket/websocket";
 
 // Tính toán ngày đầu tiên và cuối cùng trong tuần gần nhất
-const startOfWeek = moment().startOf("week");
-const endOfWeek = moment().endOf("week");
-
-// Tạo một mảng các đối tượng ngày để cấu hình x-axis
+const startOfWeek = moment().startOf("day").subtract(6, "days");
 let xaxisCategories = [];
-const data = [];
 let currDate = moment(startOfWeek);
-while (currDate <= endOfWeek) {
-  xaxisCategories.push(currDate.format("DD/MM/YYYY"));
-  data.push(Math.floor(Math.random() * 10) + 1);
+for (let i = 0; i < 7; i++) {
+  xaxisCategories.push(currDate.format("DD/MM/YY"));
   currDate.add(1, "days");
 }
-
-const chartOptions = {
-  series: [
-    {
-      name: "Online Customers",
-      data: data,
-    },
-  ],
-  options: {
-    title: {
-      text: "Heart Rate Chart",
-      align: "center",
-      style: {
-        fontSize: "14px",
-        fontWeight: "bold",
-        fontFamily: undefined,
-        color: "#263238",
-      },
-    },
-    color: ["#6ab04c", "#2980b9"],
-    chart: {
-      background: "transparent",
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    stroke: {
-      curve: "smooth",
-    },
-    xaxis: {
-      categories: xaxisCategories,
-    },
-    legend: {
-      position: "top",
-    },
-    grid: {
-      row: {
-        colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
-        opacity: 0.5,
-      },
-    },
-  },
-};
 
 const columnPatients = [
   {
@@ -76,7 +27,7 @@ const columnPatients = [
     key: "name",
   },
   {
-    title: "Heart Disease (%)",
+    title: "Heartbeat (%)",
     dataIndex: "heartDiseasePercent",
     key: "heartDiseasePercent",
     align: "center",
@@ -95,27 +46,27 @@ const columnPatients = [
 const dataCondition = [
   {
     key: "1",
-    name: "Luu Bi",
+    name: "Hồ Văn Tùng",
     heartDiseasePercent: "80",
   },
   {
     key: "2",
-    name: "Quan Vu",
+    name: "Trần Văn Chiến",
     heartDiseasePercent: "75",
   },
   {
     key: "3",
-    name: "Tao Thao",
+    name: "Phạm Quang Chính",
     heartDiseasePercent: "72",
   },
   {
     key: "4",
-    name: "Truong Phi",
+    name: "Trần Thị Diễm My",
     heartDiseasePercent: "67",
   },
   {
     key: "5",
-    name: "Chu Du",
+    name: "Nguyễn Vũ Lộc",
     heartDiseasePercent: "50",
   },
 ];
@@ -187,24 +138,167 @@ const Dashboard = () => {
   const [statusCardsDB, setStatusCardsDB] = useState(statusCards);
   const [totalDashBoard, setTotalDashboard] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const [dataChart, setDataChart] = useState([]);
 
   const { user } = useSelector((state) => state.user);
 
-  // useEffect(() => {
-  //   setLoading(true);
-  //   setTimeout(() => {
-  //     setLoading(false);
-  //   }, 800);
-  // }, []);
+  const [array1, setArray1] = useState([0, 0, 0, 0, 0, 0, 0]); // heartbeat
+  const [array2, setArray2] = useState([0, 0, 0, 0, 0, 0, 0]); // spo2
+  const [array3, setArray3] = useState([0, 0, 0, 0, 0, 0, 0]); // temperature
+
+  const chartOptions = {
+    series: [
+      {
+        name: "HearthBeat",
+        data: array1,
+      },
+      {
+        name: "Blood Pressure",
+        data: array2,
+      },
+      {
+        name: "Cholesterol",
+        data: array3,
+      },
+    ],
+    options: {
+      title: {
+        text: "Heart Rate Chart",
+        align: "center",
+        style: {
+          fontSize: "14px",
+          fontWeight: "bold",
+          fontFamily: undefined,
+          color: "#263238",
+        },
+      },
+      color: ["#6ab04c", "#2980b9"],
+      chart: {
+        background: "transparent",
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      stroke: {
+        curve: "smooth",
+      },
+      xaxis: {
+        categories: xaxisCategories,
+      },
+      legend: {
+        position: "top",
+      },
+      grid: {
+        row: {
+          colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
+          opacity: 0.5,
+        },
+      },
+    },
+  };
 
   useEffect(() => {
-    if(user === null) return;
+    const fetchDataChart = async () => {
+      const ip_mac = "48:3F:DA:4E:92:B8";
+      const { response } = await dashboardApi.getHeartRateChartWeek(ip_mac);
+      console.log(
+        "🚀 ~ file: Dashboard.jsx:217 ~ fetchDataChart ~ response:",
+        response.beat_avgs
+      );
+      setDataChart(response.beat_avgs);
+      // const data = response.beat_avgs;
+      // const newValues1 = [];
+      // const newValues2 = [];
+      // const newValues3 = [];
+      // data.forEach((item) => {
+      //   newValues1.push(item.avg[0]);
+      //   newValues2.push(item.avg[1]);
+      //   newValues3.push(item.avg[2]);
+      // });
+      // setArray1([newValues1]);
+      // setArray2([newValues2]);
+      // setArray3([newValues3]);
+      // //await filterDataToArr(response.beat_avgs);
+    };
+    fetchDataChart();
+  }, [user]);
+
+  useEffect(() => {
+    if (dataChart && dataChart.length > 0) {
+      let newAr1 = [...array1];
+      let newAr2 = [...array2];
+      let newAr3 = [...array3];
+      dataChart.forEach((item) => {
+        const dayTemp = item.date;
+        let dayApi = dayTemp.substring(0, 6) + dayTemp.substring(8);
+        const position = xaxisCategories.indexOf(dayApi);
+        if (position !== -1) {
+          newAr1.splice(position, 1, item.avg[0]);
+          newAr2.splice(position, 1, item.avg[1]);
+          newAr3.splice(position, 1, item.avg[2]);
+        }
+      });
+      setArray1(newAr1);
+      setArray2(newAr2);
+      setArray3(newAr3);
+    }
+  }, [dataChart]);
+
+  const handleMessage = async (data) => {
+    await setData(data.message);
+    console.log(
+      "🚀 ~ file: Topbar.jsx:112 ~ handleMessage ~ data.message:",
+      data.message
+    );
+  };
+
+  useEffect(() => {
+    //const socketCL = new WebSocketClient("ws://165.22.55.235:5000/");
+    const socketCL = new WebSocketClient("ws://localhost:3000/");
+    socketCL.connect();
+    socketCL.addListener("warning", handleMessage);
+    return () => {
+      socketCL.removeListener("message", handleMessage);
+      socketCL.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (data.length > 0) {
+      // const temp = data.map((item) => {
+      //   return item.heartRate;
+      // });
+      // const tempDate = data.map((item) => {
+      //   return item.date;
+      // });
+      // chartOptions.series[0].data = temp;
+      // chartOptions.xaxis.categories = tempDate;
+
+      const tempDB = statusCardsDB;
+      const datas = data.split(",");
+      setStatusCardsDB(
+        tempDB.map((item, index) => {
+          if (index > 2 && index < 6) {
+            item.count = datas[0].toString();
+            datas.shift();
+            return item;
+          }
+          return item;
+        })
+      );
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (user === null) return;
     if (user) {
       const fetchData = async () => {
         setLoading(true);
-        const res = await axios.get(apiCall + "dashboard/get_db_card");
+        const { response, err } = await dashboardApi.getDBCard(user);
+        if (err) toast.error(err);
         //setStatusCardsDB([...statusCardsDB, ]);
-        setTotalDashboard(res.data);
+        setTotalDashboard(response);
         setLoading(false);
       };
       fetchData();
@@ -223,7 +317,7 @@ const Dashboard = () => {
     };
     updateDate();
   }, [JSON.stringify(totalDashBoard)]);
-  
+
   return (
     <div>
       {loading ? (
@@ -234,17 +328,29 @@ const Dashboard = () => {
           <div className="row">
             <div className="col-5">
               <div className="row">
-                {statusCardsDB.map((item, index) => {
-                  return (
-                    <div className="col-6" key={index}>
-                      <StatusCard
-                        icon={item.icon}
-                        count={item.count}
-                        title={item.title}
-                      />
-                    </div>
-                  );
-                })}
+                {user?.isAdmin
+                  ? statusCardsDB.map((item, index) => {
+                      return (
+                        <div className="col-6" key={index}>
+                          <StatusCard
+                            icon={item.icon}
+                            count={item.count}
+                            title={item.title}
+                          />
+                        </div>
+                      );
+                    })
+                  : statusCardsDB.map((item, index) => {
+                      return item.role === "user" ? (
+                        <div className="col-6" key={index}>
+                          <StatusCard
+                            icon={item.icon}
+                            count={item.count}
+                            title={item.title}
+                          />
+                        </div>
+                      ) : null;
+                    })}
               </div>
             </div>
             <div className="col-7">
@@ -257,59 +363,56 @@ const Dashboard = () => {
                 />
               </div>
             </div>
-            {
-              user?.isAdmin ? (
-                <>
+            {user?.isAdmin ? (
+              <>
                 <div className="col-5">
-              <div className="card">
-                <div className="card-header">
-                  <h3>Top 5 Patients</h3>
-                </div>
-                <div className="card-body-cus">
-                  {/* <Table 
+                  <div className="card">
+                    <div className="card-header">
+                      <h3>Top 5 Patients</h3>
+                    </div>
+                    <div className="card-body-cus">
+                      {/* <Table 
                 headData= {topConditionRules.head}
                 renderHead={(item, index) => renderCusomerHead(item, index)}
                 bodyData = {topConditionRules.body}
                 renderBody={(item, index) => renderCusomerBody(item, index)}/> */}
-                  <CustomTable
-                    columns={columnPatients}
-                    data={dataCondition}
-                    pagination={false}
-                  />
+                      <CustomTable
+                        columns={columnPatients}
+                        data={dataCondition}
+                        pagination={false}
+                      />
+                    </div>
+                    {/* <div className="card-footer"> */}
+                    {/* <Link to ='/'>View all</Link> */}
+                    {/* </div> */}
+                  </div>
                 </div>
-                {/* <div className="card-footer"> */}
-                {/* <Link to ='/'>View all</Link> */}
-                {/* </div> */}
-              </div>
-            </div>
-            <div className="col-7">
-              <div className="card">
-                <div className="card-header">
-                  <h3>Top 5 Top Hopspital</h3>
-                </div>
-                <div className="card-body">
-                  {/* <Table 
+                <div className="col-7">
+                  <div className="card">
+                    <div className="card-header">
+                      <h3>Top 5 Top Hopspital</h3>
+                    </div>
+                    <div className="card-body">
+                      {/* <Table 
                 headData= {latestOrders.header}
                 renderHead={(item, index) => renderOrderHead(item, index)}
                 bodyData = {latestOrders.body}
                 renderBody={(item, index) => renderOrderBody(item, index)}/> */}
-                  <CustomTable
-                    columns={columnHospital}
-                    data={dataTopHospital}
-                    pagination={false}
-                  />
+                      <CustomTable
+                        columns={columnHospital}
+                        data={dataTopHospital}
+                        pagination={false}
+                      />
+                    </div>
+                    {/* <div className="card-footer"> */}
+                    {/* <Link to ='/'>View all</Link> */}
+                    {/* </div> */}
+                  </div>
                 </div>
-                {/* <div className="card-footer"> */}
-                {/* <Link to ='/'>View all</Link> */}
-                {/* </div> */}
-              </div>
-            </div>
-                </>
-              )
-              : (
+              </>
+            ) : (
               <></>
-            )
-            }
+            )}
           </div>
         </div>
       )}

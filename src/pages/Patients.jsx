@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Table from "../component/table/Table";
 import patientList from "../assets/JsonData/patients-list.json";
 import CustomTable from "../component/table/Table";
+import patientApi from "../api/modules/patient.api";
 import { Tag } from "antd";
 
 const Patients = () => {
+
   const patientColumn = [
     {
       title: "",
@@ -87,6 +89,21 @@ const Patients = () => {
     },
   ];
 
+  const [patientList, setPatientList] = useState([dataPatients]);
+
+  useEffect(() => {
+    const fetchPatientList = async () => {
+      const { response, error } = await patientApi.getAll();
+      if (response) {
+        setPatientList(response);
+      }
+      if (error) {
+        console.log(error);
+      }
+    };
+    fetchPatientList();
+  }, []);
+
   return (
     <div>
       <h2 className="page-header">Patients</h2>
@@ -104,7 +121,7 @@ const Patients = () => {
                 bodyData={patientList}
                 renderBody={(item, index) => renderBody(item, index)}
               /> */}
-              <CustomTable columns={patientColumn} data={dataPatients} />
+              <CustomTable columns={patientColumn} data={patientList} />
             </div>
           </div>
         </div>

@@ -14,6 +14,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../../redux/features/userSlice";
 import { toast } from "react-toastify";
 import Profile from "../profile/Profile";
+import WebSocketClient from '../../socket/websocket.js';
 
 const renderNotificationItem = (item, index) => (
   <div className="notification-item" key={index}>
@@ -38,20 +39,14 @@ const renderUseToggle = (user) => (
   </div>
 );
 
-const apiCall = {
-  event: "sync",
-  data: { warning: "BT" },
-};
-
 const Topbar = () => {
-  const [webSocket, setWebSocket] = useState(null);
-  const [reconnecting, setReconnecting] = useState(false);
+  //const [webSocket, setWebSocket] = useState(null);
+  //const [reconnecting, setReconnecting] = useState(false);
   const [message, setMessage] = useState("");
-  const [visibleProfile, setVisibleProfile] = useState(true);
   const [isProfileVisible, setIsProfileVisible] = useState(false);
-  const [login, setLogin] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(true);
   const audioRef = useRef();
+  const audioRefTrick = useRef();
 
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -61,14 +56,15 @@ const Topbar = () => {
     setIsModalOpen(false);
   };
 
-  const handleAlertOpen = () => {
-    const audio = new Audio(mp3);
-    try {
-      audio.play();
-    } catch (error) {
-      window.location.reload();
-    }
-    toast.error(message, {
+  const handleAlertOpen = async () => {
+    // const audio = new Audio(mp3);
+    // try {
+    //   audio.play();
+    // } catch (error) {
+    //   audio.play();
+    //   window.location.reload();
+    // }
+    await toast.error(message, {
       position: "top-center",
       autoClose: 10000,
       hideProgressBar: false,
@@ -81,9 +77,10 @@ const Topbar = () => {
     //setVisible(true);
   };
 
-  const onCloseProfile = () => {
-    setVisibleProfile(false);
-  };
+  const handleAlertOpenTrick = () => {
+    const audio = new Audio(mp3);
+    audio.play();
+  }
 
   const handleCloseProfile = () => {
     setIsProfileVisible(false);
@@ -92,11 +89,11 @@ const Topbar = () => {
   const handleMenuItemClick = (id) => {
     switch (id) {
       case "menu-0":
-        //<Profile open={visibleProfile} close={onCloseProfile}/>;
         setIsProfileVisible(true);
         break;
       case "menu-1":
         dispatch(setUser(null));
+        localStorage.removeItem('userDT');
         setIsModalOpen(true);
         break;
       default:
@@ -117,78 +114,85 @@ const Topbar = () => {
     </Link>
   );
 
+  const handleMessage = async (data) => {
+    await setMessage(data.message);
+    console.log("🚀 ~ file: Topbar.jsx:112 ~ handleMessage ~ data.message:", data.message)
+  };
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:5000");
-    setWebSocket(socket);
-
-    socket.onopen = () => {
-      console.log("Connected to server!");
-      socket.send(JSON.stringify(apiCall));
-    };
-
-    socket.onmessage = (event) => {
-      setMessage(event.data);
-      setTimeout(() => {
-        setMessage(null);
-      }, 10000);
-    };
-
-    socket.onclose = () => {
-      console.log("Socket is closed. Reconnect will be attempted in 1 second.");
-      setReconnecting(true);
-      // // Đợi 5 giây trước khi tái kết nối
-      // setTimeout(() => {
-      //   console.log("Reconnecting socket...");
-
-      //   // Tạo một WebSocket mới và lưu vào state
-      //   const reconnectWebSocket = new WebSocket("ws://localhost:5000");
-      //   setWebSocket(reconnectWebSocket);
-      // }, 5000);
-    };
-
-    return () => {
-      console.log("Closing socket...");
-      webSocket.close();
-    };
-  }, []);
-
-  useEffect(() => {
-    let intervalId = null;
-
-    const checkWebSocket = () => {
-      if (reconnecting) {
-        intervalId = setInterval(() => {
-          const ws = new WebSocket("ws://localhost:5000");
-          ws.onopen = () => {
-            console.log("Connected to server!");
-            ws.send(JSON.stringify(apiCall));
-            window.location.reload();
-            setReconnecting(false);
-            setWebSocket(ws);
-            clearInterval(intervalId);
-          };
-          ws.onclose = () => {
-            console.log("Waiting for reconnecting...");
-          };
-        }, 5000);
-      } else {
-        clearInterval(intervalId);
-      }
-    };
-
-    checkWebSocket();
-
-    return () => clearInterval(intervalId);
-  }, [reconnecting]);
-
-  useEffect(() => {
-    const warning = () => {
+    const warning = async () => {
       if (message) {
-        audioRef.current.click();
+        await audioRef.current.click();
+        await audioRefTrick.current.click();
       }
     };
     warning();
+    setMessage("");
   }, [message]);
+
+  useEffect(() => {
+    const socketLink = "ws://localhost:5000";
+    const socketCL = new WebSocketClient(socketLink);
+    socketCL.connect();
+    socketCL.addListener('warning', handleMessage);
+    //setWebSocket(socketCL);
+
+    // socket.onopen = () => {
+    //   console.log("Connected to server!");
+    //   socket.send(JSON.stringify(apiCall));
+    // };
+
+    // socket.onmessage = (event) => {
+    //   setMessage(event.data);
+    //   setTimeout(() => {
+    //     setMessage(null);
+    //   }, 10000);
+    // };
+
+    // socket.onclose = () => {
+    //   console.log("Socket is closed. Reconnect will be attempted in 1 second.");
+    //   setReconnecting(true);
+    // };
+
+    return () => {
+      socketCL.removeListener('message', handleMessage);
+      socketCL.disconnect();
+    };
+  }, []);
+
+  // const sendMessage = () => {
+  //   if (websocket) {
+  //     websocket.send({ type: 'message', data: 'Hello world' });
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   let intervalId = null;
+
+  //   const checkWebSocket = () => {
+  //     if (reconnecting) {
+  //       intervalId = setInterval(() => {
+  //         const ws = new WebSocket("ws://localhost:5000");
+  //         ws.onopen = () => {
+  //           console.log("Connected to server!");
+  //           ws.send(JSON.stringify(apiCall));
+  //           window.location.reload();
+  //           setReconnecting(false);
+  //           setWebSocket(ws);
+  //           clearInterval(intervalId);
+  //         };
+  //         ws.onclose = () => {
+  //           console.log("Waiting for reconnecting...");
+  //         };
+  //       }, 5000);
+  //     } else {
+  //       clearInterval(intervalId);
+  //     }
+  //   };
+
+  //   checkWebSocket();
+
+  //   return () => clearInterval(intervalId);
+  // }, [reconnecting]);
 
   return (
     <div className="topbar-container">
@@ -201,6 +205,11 @@ const Topbar = () => {
           className="topbar_button_audio"
           onClick={handleAlertOpen}
           ref={audioRef}
+        ></button>
+        <button
+          className="topbar_button_audio"
+          onClick={handleAlertOpenTrick}
+          ref={audioRefTrick}
         ></button>
         {/* <div className="alert_top">
           {message && (
@@ -259,7 +268,7 @@ const Topbar = () => {
           <Thememenu />
         </div>
         {isProfileVisible && (
-          <Profile open={visibleProfile} close={handleCloseProfile} />
+          <Profile open={isProfileVisible} close={handleCloseProfile} />
         )}
       </div>
     </div>

@@ -6,7 +6,7 @@ import "./mainlayout.css";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser } from "../redux/features/userSlice";
 import userApi from "../api/modules/user.api.js";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const MainLayout = (props) => {

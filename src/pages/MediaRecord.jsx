@@ -1,129 +1,97 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import apiCall from "../api/apiCall";
-// import {
-//   AutoComplete,
-//   Button,
-//   Cascader,
-//   Checkbox,
-//   Col,
-//   Form,
-//   Input,
-//   InputNumber,
-//   Row,
-//   Select,
-// } from "antd";
 import dayjs from "dayjs";
-import { DatePicker, Space } from "antd";
-import { Table } from "antd";
-
-// const { Option } = Select;
-// const residences = [
-//   {
-//     value: "48:3F:DA:4E:92:B8",
-//     label: "HBEAT483FDA4E92B8",
-//   },
-// ];
-// const formItemLayout = {
-//   labelCol: {
-//     xs: {
-//       span: 24,
-//     },
-//     sm: {
-//       span: 8,
-//     },
-//   },
-//   wrapperCol: {
-//     xs: {
-//       span: 24,
-//     },
-//     sm: {
-//       span: 16,
-//     },
-//   },
-// };
-// const tailFormItemLayout = {
-//   wrapperCol: {
-//     xs: {
-//       span: 24,
-//       offset: 0,
-//     },
-//     sm: {
-//       span: 16,
-//       offset: 8,
-//     },
-//   },
-// };
+import { DatePicker, Space, Table, Tag } from "antd";
+import mediaRecordApi from "../api/modules/mediaRecord.api";
+import { toast } from "react-toastify";
+import MediaRecordForm from "../component/media-record-form/MediaRecordForm";
+import DetaiRecord from "../component/detail-record/DetaiRecord";
 
 const { RangePicker } = DatePicker;
 const columns = [
   {
     title: "Patient Name",
     width: 100,
-    dataIndex: "patientName",
+    dataIndex: ["patient", "name"],
     key: "patientName",
     fixed: "left",
   },
   {
     title: "Doctor Name",
     width: 100,
-    dataIndex: "doctorName",
+    dataIndex: ["doctor", "name"],
     key: "doctorName",
     fixed: "left",
   },
   {
-    title: "Date",
-    dataIndex: "date",
+    title: "Date start",
+    dataIndex: "date_start",
     key: "1",
     width: 150,
+    render: (text) => <span>{dayjs(text).format("DD/MM/YYYY")}</span>,
   },
   {
-    title: "Sex",
-    dataIndex: "sex",
+    title: "sex",
+    dataIndex: ["vital_signs", 1],
     key: "2",
     width: 150,
+    render: (_, { sex }) => (
+      <>
+        <span>
+          {sex !== 1 ? "Male" : "Female"}
+        </span>
+      </>
+    ),
   },
   {
     title: "age",
-    dataIndex: "age",
+    dataIndex: ["vital_signs", 0],
     key: "3",
     width: 150,
   },
   {
     title: "thalach",
-    dataIndex: "address",
+    dataIndex: ["vital_signs", 7],
     key: "4",
     width: 150,
   },
   {
     title: "fbs",
-    dataIndex: "fbs",
+    dataIndex: ["vital_signs", 5],
     key: "5",
     width: 150,
   },
   {
     title: "cholestoral",
-    dataIndex: "cholestoral",
+    dataIndex: ["vital_signs", 4],
     key: "6",
     width: 150,
   },
   {
-    title: "Hospital Name",
-    dataIndex: "hospitalName",
+    title: "hospital name",
+    dataIndex: ["hospital", "name"],
     key: "7",
     width: 150,
   },
   {
-    title: "HearthBeat Name",
-    dataIndex: "heartBeatName",
-    key: "8",
+    title: "Status",
+    key: "operation",
+    dataIndex: "status",
+    fixed: "right",
+    width: 100,
+    render: (_, { status }) => (
+      <>
+        <Tag color={status === 1 ? "green" : "volcano"}>
+          {status === 1 ? "Active" : "Inactive"}
+        </Tag>
+      </>
+    ),
   },
   {
     title: "Detail",
     key: "operation",
     fixed: "right",
     width: 100,
-    render: () => <a style={{ fontWeight: "bold" }}>action</a>,
+    render: () => <a style={{ fontWeight: "bold" }}>Detail</a>,
   },
 ];
 
@@ -133,313 +101,116 @@ const disabledDate = (current) => {
 };
 
 const MediaRecord = () => {
-  //   const [form] = Form.useForm();
-  //   const onFinish = (values) => {
-  //     console.log("Received values of form: ", values);
-  //   };
-  //   const prefixSelector = (
-  //     <Form.Item name="prefix" noStyle>
-  //       <Select
-  //         style={{
-  //           width: 70,
-  //         }}
-  //       >
-  //         <Option value="86">+86</Option>
-  //         <Option value="87">+87</Option>
-  //       </Select>
-  //     </Form.Item>
-  //   );
-  //   const suffixSelector = (
-  //     <Form.Item name="suffix" noStyle>
-  //       <Select
-  //         style={{
-  //           width: 70,
-  //         }}
-  //       >
-  //         <Option value="USD">$</Option>
-  //         <Option value="CNY">¥</Option>
-  //       </Select>
-  //     </Form.Item>
-  //   );
-  //   const [autoCompleteResult, setAutoCompleteResult] = useState([]);
-  //   const onWebsiteChange = (value) => {
-  //     if (!value) {
-  //       setAutoCompleteResult([]);
-  //     } else {
-  //       setAutoCompleteResult(
-  //         [".com", ".org", ".net"].map((domain) => `${value}${domain}`)
-  //       );
-  //     }
-  //   };
-  //   const websiteOptions = autoCompleteResult.map((website) => ({
-  //     label: website,
-  //     value: website,
-  //   }));
-
   const [data, setData] = useState([]);
+  const [dateRangeChange, setDateRangeChange] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpenDetail, setIsModalOpenDetail] = useState(false);
+  const [detailRecord, setDetailRecord] = useState({});
+
+  const handleChangeDate = (value) => {
+    try {
+      if (value?.length === 0) return;
+      setDateRangeChange(value);
+    } catch (error) {}
+  };
+
+  const showModalAddPatient = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseDetailRecord = () => {
+    setIsModalOpenDetail(false);
+  };
+
+  const handleCancelModelAdd = (value) => {
+    setIsModalOpen(value);
+    fetchData();
+  };
+  const fetchData = async () => {
+    const { response, err } = await mediaRecordApi.getMediaRecord(
+      dayjs().subtract(7, "days"),
+      dayjs()
+    );
+    if (response) {
+      console.log("🚀 ~ file: MediaRecord.jsx:107 ~ fetchData ~ response:", response)
+      setData(response);
+    }
+    if (err) toast.error(err);
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   useEffect(() => {
-    axios
-      .get(apiCall + "/")
-      .then((response) => {
-        setData(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
+    const fetchData = async () => {
+      const { response, err } = await mediaRecordApi.getMediaRecord(
+        dateRangeChange[0],
+        dateRangeChange[1]
+      );
+      if (response) {
+        setData(response);
+      }
+      if (err) toast.error(err);
+    };
+    fetchData();
+  }, [dateRangeChange]);
 
   return (
     <div>
-      <div className="date_picker">
-        <Space direction="vertical" size={12}>
-          <RangePicker disabledDate={disabledDate} />
-        </Space>
-      </div>
       <h2 className="page-header">Media Record</h2>
-      <div className="form_media-recors">
-        <Table
-          columns={columns}
-          dataSource={data}
-          scroll={{
-            x: 1500,
-            y: window.innerHeight - 220,
-          }}
-        />
-        {/* <Form
-          {...formItemLayout}
-          form={form}
-          name="register"
-          onFinish={onFinish}
-          initialValues={{
-            residence: ["zhejiang", "hangzhou", "xihu"],
-            prefix: "86",
-          }}
-          style={{
-            maxWidth: 600,
-          }}
-          scrollToFirstError
-        >
-          <Form.Item
-            name="Patient Name"
-            label="Patient Name"
-            rules={[
-              {
-                type: "name",
-                message: "The input is not valid Patient Name!",
-              },
-              {
-                required: true,
-                message: "Please input Patient Name!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            name="password"
-            label="Password"
-            rules={[
-              {
-                required: true,
-                message: "Please input your password!",
-              },
-            ]}
-            hasFeedback
-          >
-            <Input.Password />
-          </Form.Item>
-
-          <Form.Item
-            name="confirm"
-            label="Confirm Password"
-            dependencies={["password"]}
-            hasFeedback
-            rules={[
-              {
-                required: true,
-                message: "Please confirm your password!",
-              },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue("password") === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(
-                    new Error(
-                      "The two passwords that you entered do not match!"
-                    )
-                  );
-                },
-              }),
-            ]}
-          >
-            <Input.Password />
-          </Form.Item>
-
-          <Form.Item
-            name="nickname"
-            label="Nickname"
-            tooltip="What do you want others to call you?"
-            rules={[
-              {
-                required: true,
-                message: "Please input your nickname!",
-                whitespace: true,
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            name="residence"
-            label="Habitual Residence"
-            rules={[
-              {
-                type: "array",
-                required: true,
-                message: "Please select your habitual residence!",
-              },
-            ]}
-          >
-            <Cascader options={residences} />
-          </Form.Item>
-
-          <Form.Item
-            name="phone"
-            label="Phone Number"
-            rules={[
-              {
-                required: true,
-                message: "Please input your phone number!",
-              },
-            ]}
-          >
-            <Input
-              addonBefore={prefixSelector}
-              style={{
-                width: "100%",
-              }}
+      <div
+        className="btn_nav"
+        style={{ display: "flex", justifyContent: "space-between" }}
+      >
+        <div className="btn btn-add">
+          <button onClick={showModalAddPatient}>Add MediaRecord</button>
+        </div>
+        {isModalOpen && (
+          <MediaRecordForm handleCancelModelAdd={handleCancelModelAdd} />
+        )}
+        <div className="date_picker">
+          <Space direction="vertical" size={12}>
+            <RangePicker
+              disabledDate={disabledDate}
+              defaultValue={[dayjs().subtract(7, "days"), dayjs()]}
+              onChange={handleChangeDate}
             />
-          </Form.Item>
-
-          <Form.Item
-            name="donation"
-            label="Donation"
-            rules={[
+          </Space>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-12">
+          <div className="card">
+            <div className="card-body">
+              <Table
+                columns={columns}
+                dataSource={data}
+                scroll={{
+                  x: 1500,
+                  y: window.innerHeight - 220,
+                }}
+                onRow={(record, rowIndex) => {
+                  return {
+                    onClick: (event) => {
+                      // console.log("🚀 ~ file: MediaRecord.jsx:80 ~ event", event)
+                      // console.log("🚀 ~ file: MediaRecord.jsx:80 ~ record", record)
+                      // console.log("🚀 ~ file: MediaRecord.jsx:80 ~ rowIndex", rowIndex)
+                      setIsModalOpenDetail(true);
+                      setDetailRecord(record);
+                    }, // click row
+                    // onDoubleClick: (event) => {}, // double click row
+                    // onContextMenu: (event) => {}, // right button click row
+                    // onMouseEnter: (event) => {}, // mouse enter row
+                    // onMouseLeave: (event) => {}, // mouse leave row
+                  };
+                }}
+              />
               {
-                required: true,
-                message: "Please input donation amount!",
-              },
-            ]}
-          >
-            <InputNumber
-              addonAfter={suffixSelector}
-              style={{
-                width: "100%",
-              }}
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="website"
-            label="Website"
-            rules={[
-              {
-                required: true,
-                message: "Please input website!",
-              },
-            ]}
-          >
-            <AutoComplete
-              options={websiteOptions}
-              onChange={onWebsiteChange}
-              placeholder="website"
-            >
-              <Input />
-            </AutoComplete>
-          </Form.Item>
-
-          <Form.Item
-            name="intro"
-            label="Intro"
-            rules={[
-              {
-                required: true,
-                message: "Please input Intro",
-              },
-            ]}
-          >
-            <Input.TextArea showCount maxLength={100} />
-          </Form.Item>
-
-          <Form.Item
-            name="gender"
-            label="Gender"
-            rules={[
-              {
-                required: true,
-                message: "Please select gender!",
-              },
-            ]}
-          >
-            <Select placeholder="select your gender">
-              <Option value="male">Male</Option>
-              <Option value="female">Female</Option>
-              <Option value="other">Other</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            label="Captcha"
-            extra="We must make sure that your are a human."
-          >
-            <Row gutter={8}>
-              <Col span={12}>
-                <Form.Item
-                  name="captcha"
-                  noStyle
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please input the captcha you got!",
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Button>Get captcha</Button>
-              </Col>
-            </Row>
-          </Form.Item>
-
-          <Form.Item
-            name="agreement"
-            valuePropName="checked"
-            rules={[
-              {
-                validator: (_, value) =>
-                  value
-                    ? Promise.resolve()
-                    : Promise.reject(new Error("Should accept agreement")),
-              },
-            ]}
-            {...tailFormItemLayout}
-          >
-            <Checkbox>
-              I have read the <a href="">agreement</a>
-            </Checkbox>
-          </Form.Item>
-          <Form.Item {...tailFormItemLayout}>
-            <Button type="primary" htmlType="submit">
-              Register
-            </Button>
-          </Form.Item>
-        </Form> */}
+                isModalOpenDetail && <DetaiRecord open={isModalOpenDetail} close={handleCloseDetailRecord} detailRecord = {detailRecord}/>
+              }
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

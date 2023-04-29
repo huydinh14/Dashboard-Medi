@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import CustomTable from "../component/table/Table";
-import { Dropdown, Menu, Modal, Space, Table } from "antd";
-import axios from "axios";
-import apiCall from "../api/apiCall";
+import { Dropdown, Modal, Space, Table } from "antd";
+import doctorApi from "../api/modules/doctor.api";
+import Loading from "../component/loading/Loading";
+
 
 const items = [
   {
@@ -74,39 +75,9 @@ const columnDoctor = [
     ),
   },
 ];
-const dataDoctorTemp = [
-  {
-    key: "1",
-    stt: "1",
-    name: "Nguyen Van A",
-    phone: "0123456789",
-    specialist: "Heart",
-    email: "a@gmail.com",
-    hospitalName: "Bach Mai",
-  },
-  {
-    key: "2",
-    stt: "2",
-    name: "Nguyen Van B",
-    phone: "0123456789",
-    specialist: "Heart",
-    email: "b@gmail.com",
-    hospitalName: "Bach Mai",
-  },
-  {
-    key: "3",
-    stt: "3",
-    name: "Nguyen Van C",
-    phone: "0123456789",
-    specialist: "Heart",
-    email: "c@gmail.com",
-    hospitalName: "Bach Mai",
-  },
-];
+const dataDoctorTemp = [];
 
 const Doctor = () => {
-  //const [specialist, setSpecialist] = useState('');
-  //const [filters, setFilters] = useState([]);
   const [dataDoctor, setDataDoctor] = useState(dataDoctorTemp);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -114,14 +85,13 @@ const Doctor = () => {
   useEffect(() => {
     const getSpecialist = async () => {
       try {
-        const response = await axios.get(apiCall + "doctor/get_doctor");
-        const specialistList = response.data.map((item) => {
+        const {response} = await doctorApi.getDoctor();
+        const specialistList = response.map((item) => {
           return {
             text: item,
             value: item,
           };
         });
-        //setFilters(specialistList);
         columnDoctor[3].filters = specialistList;
       } catch (error) {
         console.log("Failed to fetch specialist list: ", error);
@@ -130,12 +100,30 @@ const Doctor = () => {
     getSpecialist();
   }, []);
 
+  useEffect(() => {
+    const fetchAllDoctor = async () => {
+      try {
+        const {response} = await doctorApi.getAllDoctor();
+        setDataDoctor(response);
+        const specialistList = response.map((item) => {
+          return {
+            text: item,
+            value: item,
+          };
+        });
+        columnDoctor[3].filters = specialistList;
+      } catch (error) {
+        console.log("Failed to fetch specialist list: ", error);
+      }
+    }
+    fetchAllDoctor();
+  }, [])
+
   const handleRowSelection = (selectedRowKeys) => {
     setSelectedRowKeys(selectedRowKeys);
   };
 
   const handleDelete = () => {
-    //setDeleteTarget();
     setIsModalVisible(true);
   };
 
