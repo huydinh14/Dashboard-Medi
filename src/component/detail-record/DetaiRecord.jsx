@@ -21,7 +21,7 @@ const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
     if (response) {
       const percent = parseFloat(response) * 100;
       setPredictorResult(percent.toFixed(2));
-      await toast.success(`Predictor success with ${percent.toFixed(2)}%`, {
+      await toast.success(`Predictor success with ${percent.toFixed(4)}%`, {
         position: "bottom-left",
         autoClose: 3000,
         hideProgressBar: false,
@@ -181,13 +181,13 @@ const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
           <Col span={6}>
             <DescriptionItem title="cp" content={detailRecord.vital_signs[2]} />
           </Col>
-          <Col span={6}>
+          <Col span={6} style={{fontWeight: "bold"}}>
             <DescriptionItem
               title="trestbps"
               content={detailRecord.vital_signs[3]}
             />
           </Col>
-          <Col span={6}>
+          <Col span={6} style={{fontWeight: "bold"}}>
             <DescriptionItem
               title="chol"
               content={detailRecord.vital_signs[4]}

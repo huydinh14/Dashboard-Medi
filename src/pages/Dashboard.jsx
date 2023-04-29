@@ -4,12 +4,13 @@ import StatusCard from "../component/status-card/StatusCard";
 import Chart from "react-apexcharts";
 import moment from "moment";
 import CustomTable from "../component/table/Table";
-import { Space } from "antd";
+import { Cascader, Space } from "antd";
 import Loading from "../component/loading/Loading";
 import { useSelector } from "react-redux";
 import dashboardApi from "../api/modules/dashboard.api";
 import { toast } from "react-toastify";
 import WebSocketClient from "../socket/websocket";
+import hearthBeatApi from "../api/modules/hearthbeat.api";
 
 // Tính toán ngày đầu tiên và cuối cùng trong tuần gần nhất
 const startOfWeek = moment().startOf("day").subtract(6, "days");
@@ -140,6 +141,8 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [dataChart, setDataChart] = useState([]);
+  const [listIOT, setListIOT] = useState([]);
+  const [ip_mac, setIp_mac] = useState("");
 
   const { user } = useSelector((state) => state.user);
 
@@ -198,31 +201,18 @@ const Dashboard = () => {
     },
   };
 
+  const onChangeIOT = (value) => {
+    setIp_mac(value);
+  };
+
   useEffect(() => {
     const fetchDataChart = async () => {
-      const ip_mac = "48:3F:DA:4E:92:B8";
       const { response } = await dashboardApi.getHeartRateChartWeek(ip_mac);
-      console.log(
-        "🚀 ~ file: Dashboard.jsx:217 ~ fetchDataChart ~ response:",
-        response.beat_avgs
-      );
+      console.log("🚀 ~ file: Dashboard.jsx:211 ~ fetchDataChart ~ response:", response)
       setDataChart(response.beat_avgs);
-      // const data = response.beat_avgs;
-      // const newValues1 = [];
-      // const newValues2 = [];
-      // const newValues3 = [];
-      // data.forEach((item) => {
-      //   newValues1.push(item.avg[0]);
-      //   newValues2.push(item.avg[1]);
-      //   newValues3.push(item.avg[2]);
-      // });
-      // setArray1([newValues1]);
-      // setArray2([newValues2]);
-      // setArray3([newValues3]);
-      // //await filterDataToArr(response.beat_avgs);
     };
     fetchDataChart();
-  }, [user]);
+  }, [user, ip_mac]);
 
   useEffect(() => {
     if (dataChart && dataChart.length > 0) {
@@ -234,9 +224,9 @@ const Dashboard = () => {
         let dayApi = dayTemp.substring(0, 6) + dayTemp.substring(8);
         const position = xaxisCategories.indexOf(dayApi);
         if (position !== -1) {
-          newAr1.splice(position, 1, item.avg[0]);
-          newAr2.splice(position, 1, item.avg[1]);
-          newAr3.splice(position, 1, item.avg[2]);
+          newAr1.splice(position, 1, item.avg);
+          newAr2.splice(position, 1, item.bp);
+          newAr3.splice(position, 1, item.chol);
         }
       });
       setArray1(newAr1);
@@ -253,6 +243,21 @@ const Dashboard = () => {
     );
   };
 
+  const fetch_iot = async () => {
+    const { response } = await hearthBeatApi.getAllHB();
+    console.log("🚀 ~ file: Dashboard.jsx:260 ~ constfetch_iot= ~ response:", response)
+    if(response) {
+      const data = response.map((item) => {
+        return {
+          label: item.ip_mac,
+          value: item.ip_mac,
+        }
+      })
+      console.log("🚀 ~ file: Dashboard.jsx:268 ~ data ~ data:", data)
+      setListIOT(data);
+    }
+  }
+
   useEffect(() => {
     //const socketCL = new WebSocketClient("ws://165.22.55.235:5000/");
     const socketCL = new WebSocketClient("ws://localhost:3000/");
@@ -266,15 +271,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (data.length > 0) {
-      // const temp = data.map((item) => {
-      //   return item.heartRate;
-      // });
-      // const tempDate = data.map((item) => {
-      //   return item.date;
-      // });
-      // chartOptions.series[0].data = temp;
-      // chartOptions.xaxis.categories = tempDate;
-
       const tempDB = statusCardsDB;
       const datas = data.split(",");
       setStatusCardsDB(
@@ -302,6 +298,7 @@ const Dashboard = () => {
         setLoading(false);
       };
       fetchData();
+      fetch_iot();
     }
   }, [user]);
 
@@ -324,6 +321,18 @@ const Dashboard = () => {
         <Loading />
       ) : (
         <div>
+          <div className="analytic_cbb">
+            <Cascader
+              style={{
+                width: "25%",
+              }}
+              status="error"
+              placeholder="Choose device"
+              maxTagCount="responsive"
+              options={listIOT}
+              onChange={onChangeIOT}
+            />
+          </div>
           <h2 className="page-header">Dashboard</h2>
           <div className="row">
             <div className="col-5">
