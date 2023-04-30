@@ -43,10 +43,11 @@ const patientApi = {
             return { error };
         }
     },
-    updatePatientStatus: async (id) => {
+    updatePatientStatus: async (id, status) => {
         try {
             const response = await privateClient.post(patientEndpoints.updatePatientStatus,{
-                id
+                id,
+                status
             });
             return { response };
         } catch (error) {

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "./topbar.css";
 import Dropdown from "../dropdown/Dropdown";
 import Thememenu from "../thememenu/Thememenu";
-import notifications from "../../assets/JsonData/notification.json";
+//import notifications from "../../assets/JsonData/notification.json";
 import { Link } from "react-router-dom";
 import user_image from "../../assets/images/noAvatar.png";
 import user_menu from "../../assets/JsonData/user_menus.json";
@@ -15,6 +15,7 @@ import { setUser } from "../../redux/features/userSlice";
 import { toast } from "react-toastify";
 import Profile from "../profile/Profile";
 import WebSocketClient from "../../socket/websocket.js";
+import notificationApi from "../../api/modules/notification.api";
 
 const renderNotificationItem = (item, index) => (
   <div className="notification-item" key={index}>
@@ -40,11 +41,10 @@ const renderUseToggle = (user) => (
 );
 
 const Topbar = () => {
-  //const [webSocket, setWebSocket] = useState(null);
-  //const [reconnecting, setReconnecting] = useState(false);
   const [message, setMessage] = useState("");
   const [isProfileVisible, setIsProfileVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(true);
+  const [notification, setNotification] = useState([]);
   const audioRef = useRef();
   const audioRefTrick = useRef();
 
@@ -121,6 +121,26 @@ const Topbar = () => {
       data.message
     );
   };
+
+  const fetchNotification = async () => {
+    const { response } = await notificationApi.getAll();
+    console.log("🚀 ~ file: Topbar.jsx:127 ~ fetchNotification ~ response:", response)
+    if(response) {
+      const filtered = response.map((item) => {
+        return {
+          "icon": "bx bx-error",
+          "content": item.patient_cccd + "-" + item.warning + "-" + item.time,
+        }
+      });
+      setNotification(filtered);
+  }
+};
+
+
+  useEffect(() => {
+    fetchNotification();
+  }, []);
+
   useEffect(() => {
     const warning = async () => {
       if (message) {
@@ -130,6 +150,7 @@ const Topbar = () => {
     };
     warning();
     setMessage("");
+    fetchNotification();
   }, [message]);
 
   useEffect(() => {
@@ -262,9 +283,9 @@ const Topbar = () => {
           <Dropdown
             icon="bx bx-bell"
             badge="12"
-            contentData={notifications}
+            contentData={notification}
             renderItems={(item, index) => renderNotificationItem(item, index)}
-            renderFooter={() => <Link to="/">View All</Link>}
+            //renderFooter={() => <Link to="/">View All</Link>}
           />
         </div>
         <div className="topbar-right-item">

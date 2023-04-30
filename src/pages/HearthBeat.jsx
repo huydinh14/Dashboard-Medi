@@ -46,6 +46,12 @@ const HearthBeat = () => {
       title: "Patient CCCD",
       dataIndex: "patient_cccd",
       key: "patient_cccd",
+      render: (patientCccd) => (
+        <div>
+          <p>{patientCccd.name}</p>
+          <p>{patientCccd.CCCD}</p>
+        </div>
+      ),
     },
     {
       title: "Status",

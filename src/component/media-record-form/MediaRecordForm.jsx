@@ -83,8 +83,17 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
 
   const onFinish = async (mediaRecordFN) => {
     await mediaRecordApi.addMediaRecord(mediaRecordFN);
-    await patientApi.updatePatientStatus(selectedPatient);
+    await patientApi.updatePatientStatus(selectedPatient, true);
     await hearthBeatApi.updateHbStatus(selectedIOT, true);
+    const {responseHNCCCD, error} = await hearthBeatApi.updateHbPatientCCCD(selectedIOT, selectedPatient);
+    if(responseHNCCCD)
+    {
+      console.log("update success")
+    }
+    else if(error)
+    {
+      console.log(error)
+    }
     await toast.success(`Add MediaRecord success`, {
       position: "bottom-left",
       autoClose: 3000,

@@ -1,10 +1,11 @@
-import { Button, Col, Divider, Drawer, Result, Row } from "antd";
+import { Button, Col, Divider, Drawer, Modal, Result, Row } from "antd";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useState } from "react";
 import "./detairecord.css";
 import mediaRecordApi from "../../api/modules/mediaRecord.api";
 import { toast } from "react-toastify";
 import hearthBeatApi from "../../api/modules/hearthbeat.api";
+import patientApi from "../../api/modules/patient.api";
 
 const DescriptionItem = ({ title, content }) => (
   <div className="site-description-item-profile-wrapper">
@@ -15,6 +16,7 @@ const DescriptionItem = ({ title, content }) => (
 
 const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
   const [predictorResult, setPredictorResult] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const predictorMediaRecord = async (predictor) => {
     const { response } = await mediaRecordApi.predictor(predictor);
@@ -34,8 +36,14 @@ const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
   };
 
   const endMediaRecord = async (medi) => {
+    console.log("🚀 ~ file: DetaiRecord.jsx:38 ~ endMediaRecord ~ medi:", medi);
+    console.log(
+      "🚀 ~ file: DetaiRecord.jsx:38 ~ endMediaRecord ~ medi:",
+      medi.patient._id
+    );
     const { response } = await mediaRecordApi.endMediaRecord(medi._id);
     await hearthBeatApi.updateHbStatus(medi.iot_id.id, false);
+    await patientApi.updatePatientStatus(medi.patient.id, false);
     close();
     statusFetcch();
     if (response) {
@@ -49,6 +57,21 @@ const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
         progress: undefined,
       });
     }
+  };
+
+  const handleDeleteConfirm = () => {
+    endMediaRecord(detailRecord);
+    // Ẩn dialog xác nhận
+    setIsModalVisible(false);
+  };
+
+  const handleDeleteCancel = () => {
+    // Ẩn dialog xác nhận
+    setIsModalVisible(false);
+  };
+
+  const handleDelete = () => {
+    setIsModalVisible(true);
   };
 
   return (
@@ -78,11 +101,22 @@ const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
               <Button
                 type="dashed"
                 style={{ color: "red" }}
-                onClick={() => endMediaRecord(detailRecord)}
+                //onClick={() => endMediaRecord(detailRecord)}
+                onClick={() => handleDelete()}
               >
                 End MediaRecord
               </Button>
             )}
+            {
+              <Modal
+                title="Confirm Delete"
+                open={isModalVisible}
+                onOk={handleDeleteConfirm}
+                onCancel={handleDeleteCancel}
+              >
+                <p>Are you sure to delete items selected !?</p>
+              </Modal>
+            }
           </Col>
         </Row>
         <p className="site-description-item-profile-p">Information</p>
@@ -181,13 +215,13 @@ const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
           <Col span={6}>
             <DescriptionItem title="cp" content={detailRecord.vital_signs[2]} />
           </Col>
-          <Col span={6} style={{fontWeight: "bold"}}>
+          <Col span={6} style={{ fontWeight: "bold" }}>
             <DescriptionItem
               title="trestbps"
               content={detailRecord.vital_signs[3]}
             />
           </Col>
-          <Col span={6} style={{fontWeight: "bold"}}>
+          <Col span={6} style={{ fontWeight: "bold" }}>
             <DescriptionItem
               title="chol"
               content={detailRecord.vital_signs[4]}

@@ -2,7 +2,6 @@
 .dropdown {
     position: relative;
     z-index: 99;
-
 }
 
 .dropdow-toggle {
@@ -38,7 +37,7 @@
     top: calc(100% + 5px);
     right: 0;
     width: max-content;
-    max-width: 400px;
+    max-width: 600px;
     background-color: var(--main-bg);
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
