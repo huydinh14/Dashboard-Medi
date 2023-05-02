@@ -2,11 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import "./topbar.css";
 import Dropdown from "../dropdown/Dropdown";
 import Thememenu from "../thememenu/Thememenu";
-//import notifications from "../../assets/JsonData/notification.json";
 import { Link } from "react-router-dom";
 import user_image from "../../assets/images/noAvatar.png";
 import user_menu from "../../assets/JsonData/user_menus.json";
-import { Alert, Space } from "antd";
 import mp3 from "../../assets/audio/warning.mp3";
 import Login from "../login/Login";
 import { useSelector } from "react-redux";
@@ -14,13 +12,19 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../../redux/features/userSlice";
 import { toast } from "react-toastify";
 import Profile from "../profile/Profile";
-import WebSocketClient from "../../socket/websocket.js";
+import { webSocketClient } from "../../socket/websocket.js";
 import notificationApi from "../../api/modules/notification.api";
+import { format } from "timeago.js";
+import { setWebSocket } from "../../redux/features/socketSlice";
 
 const renderNotificationItem = (item, index) => (
   <div className="notification-item" key={index}>
     <i className={item.icon}></i>
     <span>{item.content}</span>
+    <div className="time_ago">
+      <i className="bx bx-timer"></i>
+      <div>{format(item.createdAt)}</div>
+    </div>
   </div>
 );
 
@@ -115,27 +119,23 @@ const Topbar = () => {
   );
 
   const handleMessage = async (data) => {
+    console.log("🚀 ~ file: Topbar.jsx:122 ~ handleMessage ~ data:", data)
     await setMessage(data.message);
-    console.log(
-      "🚀 ~ file: Topbar.jsx:112 ~ handleMessage ~ data.message:",
-      data.message
-    );
   };
 
   const fetchNotification = async () => {
     const { response } = await notificationApi.getAll();
-    console.log("🚀 ~ file: Topbar.jsx:127 ~ fetchNotification ~ response:", response)
-    if(response) {
+    if (response) {
       const filtered = response.map((item) => {
         return {
-          "icon": "bx bx-error",
-          "content": item.patient_cccd + "-" + item.warning + "-" + item.time,
-        }
+          icon: "bx bx-error",
+          content: item.patient_cccd + "-" + item.warning,
+          createdAt: item.createdAt,
+        };
       });
       setNotification(filtered);
-  }
-};
-
+    }
+  };
 
   useEffect(() => {
     fetchNotification();
@@ -154,69 +154,14 @@ const Topbar = () => {
   }, [message]);
 
   useEffect(() => {
-    const socketLink = "ws://localhost:5000";
-    const socketCL = new WebSocketClient(socketLink);
-    socketCL.connect();
-    socketCL.addListener("warning", handleMessage);
-    //setWebSocket(socketCL);
-
-    // socket.onopen = () => {
-    //   console.log("Connected to server!");
-    //   socket.send(JSON.stringify(apiCall));
-    // };
-
-    // socket.onmessage = (event) => {
-    //   setMessage(event.data);
-    //   setTimeout(() => {
-    //     setMessage(null);
-    //   }, 10000);
-    // };
-
-    // socket.onclose = () => {
-    //   console.log("Socket is closed. Reconnect will be attempted in 1 second.");
-    //   setReconnecting(true);
-    // };
-
+    // const socketLink = "ws://157.245.204.4:5000";
+    webSocketClient.connect();
+    webSocketClient.addListener("warning", handleMessage);
     return () => {
-      socketCL.removeListener("message", handleMessage);
-      socketCL.disconnect();
+      webSocketClient.removeListener("warning", handleMessage);
+      webSocketClient.disconnect();
     };
   }, []);
-
-  // const sendMessage = () => {
-  //   if (websocket) {
-  //     websocket.send({ type: 'message', data: 'Hello world' });
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   let intervalId = null;
-
-  //   const checkWebSocket = () => {
-  //     if (reconnecting) {
-  //       intervalId = setInterval(() => {
-  //         const ws = new WebSocket("ws://localhost:5000");
-  //         ws.onopen = () => {
-  //           console.log("Connected to server!");
-  //           ws.send(JSON.stringify(apiCall));
-  //           window.location.reload();
-  //           setReconnecting(false);
-  //           setWebSocket(ws);
-  //           clearInterval(intervalId);
-  //         };
-  //         ws.onclose = () => {
-  //           console.log("Waiting for reconnecting...");
-  //         };
-  //       }, 5000);
-  //     } else {
-  //       clearInterval(intervalId);
-  //     }
-  //   };
-
-  //   checkWebSocket();
-
-  //   return () => clearInterval(intervalId);
-  // }, [reconnecting]);
 
   return (
     <div className="topbar-container">

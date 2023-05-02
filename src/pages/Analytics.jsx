@@ -1,56 +1,222 @@
-import React, { useEffect, useState } from "react";
-import { Cascader } from "antd";
+// import React, { useEffect, useState } from "react";
+// import Chart from "react-apexcharts";
+// import moment from "moment";
+// import statisticApi from "../api/modules/statistic.api";
+// import { Cascader, DatePicker } from "antd";
+// import WebSocketClient from "../socket/websocket";
+// import hearthBeatApi from "../api/modules/hearthbeat.api";
 
-const options = [
-    {
-      value: "48:3F:DA:4E:92:B8",
-      label: "HBEAT483FDA4E92B8",
-    },
-];
+// const Analytics = () => {
+//   const [message, setMessage] = useState([]);
+//   const [data, setData] = useState("");
+//   const [listIOT, setListIOT] = useState([]);
+//   const [ip_mac, setIp_mac] = useState("");
+
+//   const chartOptions1 = {
+//     series: [
+//       {
+//         name: "Heartbeat",
+//         data: message,
+//       },
+//     ],
+//     options: {
+//       chart: {
+//         height: 350,
+//         type: "line",
+//         zoom: {
+//           enabled: false,
+//         },
+//       },
+//       dataLabels: {
+//         enabled: false,
+//       },
+//       stroke: {
+//         curve: "straight",
+//       },
+//       title: {
+//         text: "Realtime Heartbeat",
+//         align: "left",
+//       },
+//       grid: {
+//         row: {
+//           colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
+//           opacity: 0.5,
+//         },
+//       },
+//       xaxis: {
+//         type: "datetime",
+//       },
+//     },
+//   };
+
+//   const handleMessage = async (data) => {
+//     console.log("🚀 ~ file: Analytics.jsx:67 ~ handleMessage ~ data:", data);
+//     await setData(data.message);
+//   };
+
+//   const fetch_iot = async () => {
+//     const { response } = await hearthBeatApi.getAllHB();
+//     if (response) {
+//       const data = response.map((item) => {
+//         return {
+//           label: item.ip_mac,
+//           value: item.ip_mac,
+//         };
+//       });
+//       setListIOT(data);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetch_iot();
+//   }, []);
+
+//   useEffect(() => {
+//     //const socketLink = "ws://157.245.204.4:5000";
+//     const socketLink = "ws://localhost:5000";
+//     const socketCL = new WebSocketClient(socketLink);
+//     socketCL.connect();
+//     socketCL.addListener("warning", handleMessage);
+//     return () => {
+//       socketCL.removeListener("message", handleMessage);
+//       socketCL.disconnect();
+//     };
+//   }, []);
+
+//   const onChangeIOT = (value) => {
+//     setIp_mac(value);
+//   };
+
+//   useEffect(() => {
+//     const filter = data.split(",");
+//     if(filter[0] === ip_mac) {
+//       setMessage((prev) => [...prev, filter[1]]);
+//     }
+//   }, [data]);
+
+//   return (
+//     <div id="chart">
+//       <div className="analytic_cbb">
+//         <Cascader
+//           style={{
+//             width: "25%",
+//           }}
+//           status="error"
+//           options={listIOT}
+//           onChange={onChangeIOT}
+//           placeholder="Choose device"
+//           maxTagCount="responsive"
+//         />
+//       </div>
+//       <h2 className="page-header">Analytics</h2>
+//       <div id="realtime-container">
+//         <div id="chart">
+//           <Chart
+//             options={chartOptions1.options}
+//             series={chartOptions1.series}
+//             type="line"
+//             height={500}
+//           />
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Analytics;
+
+import React, { useEffect, useState } from "react";
+import Chart from "react-apexcharts";
+import moment from "moment";
+import { webSocketClient } from "../socket/websocket";
 
 const Analytics = () => {
-  // const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const [series, setSeries] = useState([{ data: [] }]);
+
+  const [options, setOptions] = useState({
+    chart: {
+      id: "realtime",
+      height: 350,
+      type: "line",
+      animations: {
+        enabled: true,
+        easing: "linear",
+        dynamicAnimation: {
+          speed: 1000,
+        },
+      },
+      toolbar: {
+        show: false,
+      },
+      zoom: {
+        enabled: false,
+      },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    stroke: {
+      curve: "smooth",
+    },
+    title: {
+      text: "Realtime Heartbeat Chart", 
+      align: "center",
+    },
+    markers: {
+      size: 0,
+    },
+    xaxis: {
+      type: "datetime",
+      labels: {
+        formatter: (value) => {
+          return moment(value).format("HH:mm:ss");
+        },
+      },
+    },
+    yaxis: {},
+    legend: {
+      show: false,
+    },
+  });
+
+  const handleMessage = (message) => {
+    const newData = message.message.split(",");
+    setData(newData);
+  };
+
+  useEffect(() => {
+    webSocketClient.addListener("warning", handleMessage);
+    return () => {
+      webSocketClient.removeListener("warning", handleMessage);
+    };
+  }, []);
 
   // useEffect(() => {
-  //   const iframe = document.createElement('iframe');
-  //   iframe.src = 'http://192.168.1.5/real_time';
-  //   iframe.onload = () => {
-  //     setIsLoading(false);
-  //   };
-  //   document.getElementById('realtime-container').appendChild(iframe);
-  // }, []);
-  const onChange = (value) => {
-    console.log(value);
-  };
+  //   const newTime = Date.now();
+  //   const y = Number(data[1]);
+  //   console.log("🚀 ~ file: Analytics.jsx:204 ~ useEffect ~ y:", y)
+  //   setSeries((prevSeries) => {
+  //     const newSeries = [...prevSeries[0].data, { x: newTime, y }];
+  //     return [{ data: newSeries.slice(-10) }];
+  //   });
+  // }, [data]);
+
+  useEffect(() => {
+    const newTime = Date.now();
+    const y = Number(data[1]);
+    console.log("🚀 ~ file: Analytics.jsx:204 ~ useEffect ~ y:", y)
+    setSeries((prevSeries) => {
+      const newSeries = [...prevSeries[0].data, { x: newTime, y }];
+      return [{ data: newSeries.slice(-10) }];
+    });
+  }, [data]);
+
+console.log("🚀 ~ file: Analytics.jsx:204 ~ useEffect ~ series:", series)
 
   return (
     <div id="chart">
-    <div className="analytic_cbb">
-          <Cascader
-            style={{
-              width: "25%",
-            }}
-            status="error"
-            options={options}
-            onChange={onChange}
-            placeholder="Choose device"
-            maxTagCount="responsive"
-            value={["48:3F:DA:4E:92:B8"]}
-          />
-        </div>
-      <h2 className="page-header">
-        Analytics
-      </h2>
-      <div id="realtime-container">
-        {/* {isLoading ? (
-        <div>Loading...</div>
-      ) : null} */}
-        <iframe
-          src="http://192.168.1.6/real_time"
-          width="100%"
-          height="500"
-        ></iframe>
-      </div>
+      <Chart options={options} series={series} type="line" height={500} />
     </div>
   );
 };

@@ -1,7 +1,7 @@
 class WebSocketClient {
   constructor(url) {
     this.websocket = null;
-    this.url = url;
+    this.url = "ws://localhost:5000";
     this.listeners = {};
   }
 
@@ -23,6 +23,7 @@ class WebSocketClient {
 
     this.websocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
+      console.log("🚀 ~ file: websocket.js:26 ~ WebSocketClient ~ connect ~ data:", data)
       const { type } = data;
       if (type in this.listeners) {
         this.listeners[type].forEach((listener) => {
@@ -66,4 +67,6 @@ class WebSocketClient {
   }
 }
 
-export default WebSocketClient;
+const webSocketClient = new WebSocketClient("ws://localhost:5000");
+
+export { webSocketClient };

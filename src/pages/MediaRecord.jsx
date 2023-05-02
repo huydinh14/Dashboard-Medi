@@ -121,10 +121,10 @@ const MediaRecord = () => {
   const handleCloseDetailRecord = () => {
     setIsModalOpenDetail(false);
   };
-  
+
   const fetchDataRunning = () => {
     fetchData();
-  }
+  };
 
   const handleCancelModelAdd = (value) => {
     setIsModalOpen(value);
@@ -164,71 +164,71 @@ const MediaRecord = () => {
 
   return (
     <div>
-    {isLoading ? (
+      {isLoading ? (
         <Loading />
       ) : (
         <>
-      <h2 className="page-header">Media Record</h2>
-      <div
-        className="btn_nav"
-        style={{ display: "flex", justifyContent: "space-between" }}
-      >
-        <div className="btn btn-add">
-          <button onClick={showModalAddPatient}>Add MediaRecord</button>
-        </div>
-        {isModalOpen && (
-          <MediaRecordForm handleCancelModelAdd={handleCancelModelAdd} />
-        )}
-        <div className="date_picker">
-          <Space direction="vertical" size={12}>
-            <RangePicker
-              disabledDate={disabledDate}
-              defaultValue={[dayjs().subtract(7, "days"), dayjs()]}
-              onChange={handleChangeDate}
-            />
-          </Space>
-        </div>
-      </div>
-      <div className="row">
-        <div className="col-12">
-          <div className="card">
-            <div className="card-body">
-              <Table
-                columns={columns}
-                dataSource={data}
-                scroll={{
-                  x: 1500,
-                  y: window.innerHeight - 220,
-                }}
-                onRow={(record, rowIndex) => {
-                  return {
-                    onClick: (event) => {
-                      // console.log("🚀 ~ file: MediaRecord.jsx:80 ~ event", event)
-                      // console.log("🚀 ~ file: MediaRecord.jsx:80 ~ record", record)
-                      // console.log("🚀 ~ file: MediaRecord.jsx:80 ~ rowIndex", rowIndex)
-                      setIsModalOpenDetail(true);
-                      setDetailRecord(record);
-                    }, // click row
-                    // onDoubleClick: (event) => {}, // double click row
-                    // onContextMenu: (event) => {}, // right button click row
-                    // onMouseEnter: (event) => {}, // mouse enter row
-                    // onMouseLeave: (event) => {}, // mouse leave row
-                  };
-                }}
-              />
-              {isModalOpenDetail && (
-                <DetaiRecord
-                  open={isModalOpenDetail}
-                  close={handleCloseDetailRecord}
-                  detailRecord={detailRecord}
-                  statusFetcch={fetchDataRunning}
+          <h2 className="page-header">Media Record</h2>
+          <div
+            className="btn_nav"
+            style={{ display: "flex", justifyContent: "space-between" }}
+          >
+            <div className="btn btn-add">
+              <button onClick={showModalAddPatient}>Add MediaRecord</button>
+            </div>
+            {isModalOpen && (
+              <MediaRecordForm handleCancelModelAdd={handleCancelModelAdd} />
+            )}
+            <div className="date_picker">
+              <Space direction="vertical" size={12}>
+                <RangePicker
+                  disabledDate={disabledDate}
+                  defaultValue={[dayjs().subtract(7, "days"), dayjs()]}
+                  onChange={handleChangeDate}
                 />
-              )}
+              </Space>
             </div>
           </div>
-        </div>
-      </div>
-      </>
+          <div className="row">
+            <div className="col-12">
+              <div className="card">
+                <div className="card-body">
+                  <Table
+                    columns={columns}
+                    dataSource={data}
+                    scroll={{
+                      x: 1500,
+                      y: window.innerHeight - 220,
+                    }}
+                    onRow={(record, rowIndex) => {
+                      return {
+                        onClick: (event) => {
+                          // console.log("🚀 ~ file: MediaRecord.jsx:80 ~ event", event)
+                          // console.log("🚀 ~ file: MediaRecord.jsx:80 ~ record", record)
+                          // console.log("🚀 ~ file: MediaRecord.jsx:80 ~ rowIndex", rowIndex)
+                          setIsModalOpenDetail(true);
+                          setDetailRecord(record);
+                        }, // click row
+                        // onDoubleClick: (event) => {}, // double click row
+                        // onContextMenu: (event) => {}, // right button click row
+                        // onMouseEnter: (event) => {}, // mouse enter row
+                        // onMouseLeave: (event) => {}, // mouse leave row
+                      };
+                    }}
+                  />
+                  {isModalOpenDetail && (
+                    <DetaiRecord
+                      open={isModalOpenDetail}
+                      close={handleCloseDetailRecord}
+                      detailRecord={detailRecord}
+                      statusFetcch={fetchDataRunning}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

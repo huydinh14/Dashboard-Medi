@@ -1,44 +1,148 @@
 import React, { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
-import generateDayWiseTimeSeries from "../utils/generateDayWiseTimeSeries";
-import Loading from "../component/loading/Loading";
-import dayjs from "dayjs";
-import { DatePicker, Space } from "antd";
+import moment from "moment";
+import statisticApi from "../api/modules/statistic.api";
+import { Cascader, DatePicker } from "antd";
+import hearthBeatApi from "../api/modules/hearthbeat.api";
 
-const { RangePicker } = DatePicker;
+const chartMix1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+const chartMix2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+const chartMix3 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+const temp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-const Statistics = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
+const chart1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+const chart2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+const chart3 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-  const disabledDate = (current) => {
-    // Can not select days before today and today
-    return current && current > dayjs().endOf("day");
+const Analytics = () => {
+  let xaxisCategories = [];
+
+  const [listIOT, setListIOT] = useState([]);
+
+  const [dataChartMix1, setDataChartMix1] = useState(chartMix1);
+  const [dataChartMix2, setDataChartMix2] = useState(chartMix2);
+  const [dataChartMix3, setDataChartMix3] = useState(chartMix3);
+
+  const [dataChartMix, setDataChartMix] = useState([]);
+
+  const [dataChart1, setDataChart1] = useState(chart1);
+  const [dataChart2, setDataChart2] = useState(chart2);
+  const [dataChart3, setDataChart3] = useState(chart3);
+
+  const [ip_mac, setIp_mac] = useState("");
+  const [yearChart, setYearChart] = useState(moment().format("YYYY"));
+  const [xaxisCategoriesChart, setXaxisCategoriesChart] = useState([]);
+
+  const setYearChart_Y = (year) => {
+    const xaxisCategories = [];
+    for (let i = 0; i < 12; i++) {
+      const month = moment().year(year).month(i);
+      xaxisCategories.push(month.format("MM/YYYY"));
+    }
+    setXaxisCategoriesChart(xaxisCategories);
+  };
+
+  const fetch_iot = async () => {
+    const { response } = await hearthBeatApi.getAllHB();
+    if (response) {
+      const data = response.map((item) => {
+        return {
+          label: item.ip_mac,
+          value: item.ip_mac,
+        };
+      });
+      setListIOT(data);
+    }
+  };
+  useEffect(() => {
+    fetch_iot();
+  }, []);
+
+  useEffect(() => {
+    setYearChart_Y(yearChart);
+  }, [yearChart]);
+
+  const onChangeIOT = (value) => {
+    setIp_mac(value);
+  };
+
+  const onChangeYearChart = (date, dateString) => {
+    setYearChart(dateString);
   };
 
   useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  }, []);
+    if (ip_mac === "" || yearChart === "") return;
+    console.log(
+      "🚀 ~ file: Statistics.jsx:68 ~ useEffect ~ yearChart:",
+      yearChart
+    );
+    const fetchData = async () => {
+      const { response } = await statisticApi.getStatisticChart(
+        ip_mac,
+        yearChart
+      );
+      console.log(
+        "🚀 ~ file: Analytics.jsx:30 ~ fetchData ~ response:",
+        response
+      );
+      if (response) {
+        if (response.beat_avgs.length === 0) {
+          setDataChartMix1([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+          setDataChartMix2([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+          setDataChartMix3([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+          setDataChart1([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+          setDataChart2([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+          setDataChart3([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        }
+        else
+        {
+          setDataChartMix(response.beat_avgs);
+        }
+      }
+    };
+    fetchData();
+  }, [ip_mac, yearChart]);
+
+  useEffect(() => {
+    if (dataChartMix && dataChartMix.length > 0) {
+      let newAr1 = [...dataChartMix1];
+      let newAr2 = [...dataChartMix2];
+      let newAr3 = [...dataChartMix3];
+      dataChartMix.forEach((item) => {
+        const monthTemp = item.month;
+        const position = xaxisCategoriesChart.indexOf(monthTemp);
+        if (position !== -1) {
+          newAr1.splice(position, 1, item.avg);
+          newAr2.splice(position, 1, item.bp);
+          newAr3.splice(position, 1, item.chol);
+
+          dataChart1.splice(position, 1, item.avg);
+          dataChart2.splice(position, 1, item.bp);
+          dataChart3.splice(position, 1, item.chol);
+        }
+      });
+      setDataChartMix1(newAr1);
+      setDataChartMix2(newAr2);
+      setDataChartMix3(newAr3);
+    }
+  }, [dataChartMix]);
 
   const chartOptions1 = {
     series: [
       {
-        name: "Blood Pressure",
+        name: "HEARTHBEAT",
         type: "column",
-        data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
+        data: dataChartMix1,
       },
       {
-        name: "HearthBeat",
+        name: "Blood Pressure",
         type: "area",
-        data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
+        data: dataChartMix2,
       },
       {
         name: "Cholesterol",
         type: "line",
-        data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
+        data: dataChartMix3,
       },
     ],
     options: {
@@ -78,29 +182,13 @@ const Statistics = () => {
           stops: [0, 100, 100, 100],
         },
       },
-      labels: [
-        "01/01/2023",
-        "02/01/2023",
-        "03/01/2023",
-        "04/01/2023",
-        "05/01/2023",
-        "06/01/2023",
-        "07/01/2023",
-        "08/01/2023",
-        "09/01/2023",
-        "10/01/2023",
-        "11/01/2023",
-      ],
       markers: {
         size: 0,
       },
       xaxis: {
-        type: "datetime",
+        categories: xaxisCategoriesChart,
       },
       yaxis: {
-        title: {
-          text: "Points",
-        },
         min: 0,
       },
       tooltip: {
@@ -109,7 +197,7 @@ const Statistics = () => {
         y: {
           formatter: function (y) {
             if (typeof y !== "undefined") {
-              return y.toFixed(0) + " points";
+              return y;
             }
             return y;
           },
@@ -122,15 +210,16 @@ const Statistics = () => {
     series: [
       {
         name: "HearthBeat",
-        data: generateDayWiseTimeSeries(new Date("11 Feb 2023").getTime(), 20, {
-          min: 10,
-          max: 60,
-        }),
+        data: dataChart1,
+        // data: generateDayWiseTimeSeries(new Date("11 Feb 2023").getTime(), 20, {
+        //   min: 10,
+        //   max: 60,
+        // }),
       },
     ],
     options: {
       title: {
-        text: "Blood Pressure",
+        text: "HearBeat Chart",
         align: "center",
         style: {
           fontSize: "14px",
@@ -144,7 +233,7 @@ const Statistics = () => {
       },
       colors: ["#008FFB"],
       xaxis: {
-        type: "datetime",
+        categories: xaxisCategoriesChart,
       },
     },
   };
@@ -152,16 +241,13 @@ const Statistics = () => {
   const chartOptions3 = {
     series: [
       {
-        name: "SP02",
-        data: generateDayWiseTimeSeries(new Date("11 Feb 2023").getTime(), 20, {
-          min: 10,
-          max: 60,
-        }),
+        name: "Blood Pressure",
+        data: dataChart2,
       },
     ],
     options: {
       title: {
-        text: "HearthBeat Chart",
+        text: "Blood Pressure Chart",
         align: "center",
         style: {
           fontSize: "14px",
@@ -175,7 +261,7 @@ const Statistics = () => {
       },
       colors: ["#546E7A"],
       xaxis: {
-        type: "datetime",
+        categories: xaxisCategoriesChart,
       },
     },
   };
@@ -183,11 +269,8 @@ const Statistics = () => {
   const chartOptions4 = {
     series: [
       {
-        name: "TEMP",
-        data: generateDayWiseTimeSeries(new Date("11 Feb 2023").getTime(), 20, {
-          min: 10,
-          max: 60,
-        }),
+        name: "Cholesterol",
+        data: dataChart3,
       },
     ],
     options: {
@@ -206,80 +289,83 @@ const Statistics = () => {
         type: "area",
       },
       xaxis: {
-        type: "datetime",
+        categories: xaxisCategoriesChart,
       },
     },
   };
 
   return (
     <div>
-      {loading ? (
-        <Loading />
-      ) : (
-        <div>
-          <div className="date_picker">
-            <Space direction="vertical" size={12}>
-              <RangePicker disabledDate={disabledDate} />
-            </Space>
-          </div>
-          <h2 className="page-header">
-            <div className="datetime"></div>
-            Statistics
-          </h2>
-          <div className="row-1">
-            <div className="col-md-6">
-              <div className="card">
-                <div id="chart">
-                  <Chart
-                    options={chartOptions1.options}
-                    series={chartOptions1.series}
-                    type="line"
-                    height={350}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <div className="card">
-                <div id="chart">
-                  <Chart
-                    options={chartOptions2.options}
-                    series={chartOptions2.series}
-                    type="line"
-                    height={250}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <div className="card">
-                <div id="chart">
-                  <Chart
-                    options={chartOptions3.options}
-                    series={chartOptions3.series}
-                    type="line"
-                    height={250}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <div className="card">
-                <div id="chart">
-                  <Chart
-                    options={chartOptions4.options}
-                    series={chartOptions4.series}
-                    type="area"
-                    height={250}
-                  />
-                </div>
-              </div>
+      <div className="analytic_cbb">
+        <Cascader
+          style={{
+            width: "25%",
+          }}
+          status="error"
+          placeholder="Choose device"
+          maxTagCount="responsive"
+          options={listIOT}
+          onChange={onChangeIOT}
+        />
+        <DatePicker
+          onChange={onChangeYearChart}
+          picker="year"
+          style={{ marginLeft: "5px" }}
+        />
+      </div>
+      <h2 className="page-header">Pathogens</h2>
+      <div className="row-1">
+        <div className="col-md-6">
+          <div className="card">
+            <div id="chart">
+              <Chart
+                options={chartOptions1.options}
+                series={chartOptions1.series}
+                type="line"
+                height={350}
+              />
             </div>
           </div>
         </div>
-      )}
+        <div className="col-md-6">
+          <div className="card">
+            <div id="chart">
+              <Chart
+                options={chartOptions2.options}
+                series={chartOptions2.series}
+                type="line"
+                height={250}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="col-md-6">
+          <div className="card">
+            <div id="chart">
+              <Chart
+                options={chartOptions3.options}
+                series={chartOptions3.series}
+                type="line"
+                height={250}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="col-md-6">
+          <div className="card">
+            <div id="chart">
+              <Chart
+                options={chartOptions4.options}
+                series={chartOptions4.series}
+                type="area"
+                height={250}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default Statistics;
+export default Analytics;

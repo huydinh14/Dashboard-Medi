@@ -208,7 +208,6 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDataChart = async () => {
       const { response } = await dashboardApi.getHeartRateChartWeek(ip_mac);
-      console.log("🚀 ~ file: Dashboard.jsx:211 ~ fetchDataChart ~ response:", response)
       setDataChart(response.beat_avgs);
     };
     fetchDataChart();
@@ -237,15 +236,10 @@ const Dashboard = () => {
 
   const handleMessage = async (data) => {
     await setData(data.message);
-    console.log(
-      "🚀 ~ file: Topbar.jsx:112 ~ handleMessage ~ data.message:",
-      data.message
-    );
   };
 
   const fetch_iot = async () => {
     const { response } = await hearthBeatApi.getAllHB();
-    console.log("🚀 ~ file: Dashboard.jsx:260 ~ constfetch_iot= ~ response:", response)
     if(response) {
       const data = response.map((item) => {
         return {
@@ -253,38 +247,37 @@ const Dashboard = () => {
           value: item.ip_mac,
         }
       })
-      console.log("🚀 ~ file: Dashboard.jsx:268 ~ data ~ data:", data)
       setListIOT(data);
     }
   }
 
-  useEffect(() => {
-    //const socketCL = new WebSocketClient("ws://165.22.55.235:5000/");
-    const socketCL = new WebSocketClient("ws://localhost:3000/");
-    socketCL.connect();
-    socketCL.addListener("warning", handleMessage);
-    return () => {
-      socketCL.removeListener("message", handleMessage);
-      socketCL.disconnect();
-    };
-  }, []);
+  // useEffect(() => {
+  //   //const socketCL = new WebSocketClient("ws://165.22.55.235:5000/");
+  //   const socketCL = new WebSocketClient("ws://157.245.204.4:5000/");
+  //   socketCL.connect();
+  //   socketCL.addListener("warning", handleMessage);
+  //   return () => {
+  //     socketCL.removeListener("message", handleMessage);
+  //     socketCL.disconnect();
+  //   };
+  // }, []);
 
-  useEffect(() => {
-    if (data.length > 0) {
-      const tempDB = statusCardsDB;
-      const datas = data.split(",");
-      setStatusCardsDB(
-        tempDB.map((item, index) => {
-          if (index > 2 && index < 6) {
-            item.count = datas[0].toString();
-            datas.shift();
-            return item;
-          }
-          return item;
-        })
-      );
-    }
-  }, [data]);
+  // useEffect(() => {
+  //   if (data.length > 0) {
+  //     const tempDB = statusCardsDB;
+  //     const datas = data.split(",");
+  //     setStatusCardsDB(
+  //       tempDB.map((item, index) => {
+  //         if (index > 2 && index < 6) {
+  //           item.count = datas[0].toString();
+  //           datas.shift();
+  //           return item;
+  //         }
+  //         return item;
+  //       })
+  //     );
+  //   }
+  // }, [data]);
 
   useEffect(() => {
     if (user === null) return;

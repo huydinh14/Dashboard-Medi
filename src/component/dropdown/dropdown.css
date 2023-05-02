@@ -37,7 +37,7 @@
     top: calc(100% + 5px);
     right: 0;
     width: max-content;
-    max-width: 600px;
+    max-width: 800px;
     background-color: var(--main-bg);
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
@@ -68,6 +68,19 @@
 }
 
 .notification-item > i {
+    flex-basis: 3%;
     margin-right: 20px;
     font-size: 1.5rem;
+}
+
+.notification-item > span {
+    flex-basis: 80%;
+}
+
+.notification-item  .time_ago {
+    flex-basis: 15%;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }

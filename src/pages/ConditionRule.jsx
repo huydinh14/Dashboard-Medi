@@ -35,6 +35,24 @@ const ConditionRule = () => {
     if (response) setValue1(value);
   };
 
+const handleChangeNormal  = async (value) => {
+    const { response } = await ruleApi.updateRule(
+      "Normal",
+      value[0],
+      value[1]
+    );
+    if (response) setValue2(value);
+  };
+
+  const handleChangeTachycardia = async (value) => {
+    const { response } = await ruleApi.updateRule(
+      "Tachycardia",
+      value[0],
+      value[1]
+    );
+    if (response) setValue3(value);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const { response, error } = await ruleApi.getRule();
@@ -125,6 +143,7 @@ const ConditionRule = () => {
                 value={[value2[0], value2[1]]}
                 marks={marks}
                 disabled={disabled}
+                onChange={(value) => handleChangeNormal(value)}
               />
               <h4>Tachycardia</h4>
               <Slider
@@ -133,6 +152,7 @@ const ConditionRule = () => {
                 marks={marks}
                 value={[value3[0], value3[1]]}
                 disabled={disabled}
+                onChange={(value) => handleChangeTachycardia(value)}
               />
             </div>
           </div>

@@ -2,31 +2,37 @@
     {
         "icon": "bx bx-user-pin",
         "count": "0",
-        "title": "Total Doctors"
+        "title": "Total Doctors",
+        "role": "user"
     },
     {
         "icon": "bx bx-body",
         "count": "0",
-        "title": "Patients"
+        "title": "Patients",
+        "role": "user"
     },
     {
         "icon": "bx bx-devices",
         "count": "0",
-        "title": "HearthBeat-IOT"
+        "title": "HearthBeat-IOT",
+        "role": "user"
     },
     {
         "icon": "bx bx-clinic",
         "count": "0",
-        "title": "Hospitals"
+        "title": "Hospitals",
+        "role": "user"
     },
     {
         "icon": "bx bx-blanket",
         "count": "0",
-        "title": "Condi-Rule"
+        "title": "Condi-Rule",
+        "role": "user"
     },
     {
         "icon": "bx bx-bookmark-alt-plus",
         "count": "0",
-        "title": "Med-Records"
+        "title": "Med-Records",
+        "role": "user"
     }
 ]
