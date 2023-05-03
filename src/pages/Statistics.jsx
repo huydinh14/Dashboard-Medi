@@ -72,18 +72,10 @@ const Analytics = () => {
 
   useEffect(() => {
     if (ip_mac === "" || yearChart === "") return;
-    console.log(
-      "🚀 ~ file: Statistics.jsx:68 ~ useEffect ~ yearChart:",
-      yearChart
-    );
     const fetchData = async () => {
       const { response } = await statisticApi.getStatisticChart(
         ip_mac,
         yearChart
-      );
-      console.log(
-        "🚀 ~ file: Analytics.jsx:30 ~ fetchData ~ response:",
-        response
       );
       if (response) {
         if (response.beat_avgs.length === 0) {

@@ -227,7 +227,6 @@ const Patients = () => {
   const fetchPatientList = async () => {
     const { response, error } = await patientApi.getAll();
     if (response) {
-      console.log("🚀 ~ file: Patients.jsx:229 ~ fetchPatientList ~ response:", response)
       setPatientList(response);
     }
     if (error) {

@@ -120,6 +120,7 @@ const MediaRecord = () => {
 
   const handleCloseDetailRecord = () => {
     setIsModalOpenDetail(false);
+    fetchData();
   };
 
   const fetchDataRunning = () => {
