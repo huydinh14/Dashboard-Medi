@@ -1,4 +1,4 @@
-
+/* 
 .table-wrapper {
     overflow: hidden !important;
 }
@@ -54,4 +54,8 @@ tbody > tr:hover {
     background-color: var(--main-color);
     color: var(--txt-white) !important;
     font-weight: 600;
+} */
+
+.row-class-name {
+    height: 50px;
 }

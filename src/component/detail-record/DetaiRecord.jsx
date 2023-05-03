@@ -1,6 +1,17 @@
-import { Button, Col, Divider, Drawer, Modal, Result, Row } from "antd";
+import {
+  Button,
+  Col,
+  Divider,
+  Drawer,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Result,
+  Row,
+} from "antd";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./detairecord.css";
 import mediaRecordApi from "../../api/modules/mediaRecord.api";
 import { toast } from "react-toastify";
@@ -17,6 +28,10 @@ const DescriptionItem = ({ title, content }) => (
 const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
   const [predictorResult, setPredictorResult] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModalVisibleEdit, setIsModalVisibleEdit] = useState(false);
+  const [statusEditMedia, setStatusEditMedia] = useState(false);
+  const [form] = Form.useForm();
+  const [dataEdit, setDataEdit] = useState({});
 
   const predictorMediaRecord = async (predictor) => {
     const { response } = await mediaRecordApi.predictor(predictor);
@@ -36,11 +51,6 @@ const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
   };
 
   const endMediaRecord = async (medi) => {
-    console.log("🚀 ~ file: DetaiRecord.jsx:38 ~ endMediaRecord ~ medi:", medi);
-    console.log(
-      "🚀 ~ file: DetaiRecord.jsx:38 ~ endMediaRecord ~ medi:",
-      medi.patient._id
-    );
     const { response } = await mediaRecordApi.endMediaRecord(medi._id);
     await hearthBeatApi.updateHbStatus(medi.iot_id.id, false);
     await patientApi.updatePatientStatus(medi.patient.id, false);
@@ -59,15 +69,64 @@ const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
     }
   };
 
+  const updateMeDetailVistal = async (dataEdit) => {
+    const { response } = await mediaRecordApi.updateMediaRecord(
+      detailRecord._id,
+      dataEdit
+    );
+    if (response) {
+      toast.success(`Update success`, {
+        position: "bottom-left",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      statusFetcch();
+    }
+  };
+
+  const onFinishTab2 = async (values) => {
+    setIsModalVisibleEdit(true);
+    setDataEdit(values);
+  };
+
+  const handleEditVitalSigns = () => {
+    setStatusEditMedia(true);
+  };
+
+  const onChildrenDrawerClose = () => {
+    setStatusEditMedia(false);
+  };
+
   const handleDeleteConfirm = () => {
     endMediaRecord(detailRecord);
     // Ẩn dialog xác nhận
     setIsModalVisible(false);
   };
 
+  const handleDeleteConfirmEdit = () => {
+    //UPDATE EDIT
+    if (dataEdit) {
+      updateMeDetailVistal(dataEdit);
+      setStatusEditMedia(false);
+    }
+    // Ẩn dialog xác nhận
+    setIsModalVisibleEdit(false);
+    close();
+  };
+
   const handleDeleteCancel = () => {
     // Ẩn dialog xác nhận
     setIsModalVisible(false);
+  };
+
+  const handleDeleteCancelEdit = () => {
+    // Ẩn dialog xác nhận
+    setIsModalVisibleEdit(false);
+    setDataEdit({});
   };
 
   const handleDelete = () => {
@@ -114,7 +173,7 @@ const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
                 onOk={handleDeleteConfirm}
                 onCancel={handleDeleteCancel}
               >
-                <p>Are you sure to delete items selected !?</p>
+                <p>Are you sure to DELETE items selected !?</p>
               </Modal>
             }
           </Col>
@@ -209,8 +268,276 @@ const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
           </Col>
         </Row>
         <Divider />
-        <p className="site-description-item-profile-p">Vital Signs</p>
+        {/* <p className="site-description-item-profile-p">Vital Signs</p> */}
         {/* age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal,target */}
+        <Row>
+          <Col span={18}>
+            <p
+              className="site-description-item-profile-p"
+              style={{
+                marginBottom: 24,
+                fontWeight: 500,
+                marginLeft: -13,
+              }}
+            >
+              Vital Signs
+            </p>
+          </Col>
+          <Col span={6}>
+            <Button
+              type="dashed"
+              style={{ color: "green" }}
+              onClick={() => handleEditVitalSigns(detailRecord)}
+            >
+              Edit Vital Signs
+            </Button>
+            {statusEditMedia && (
+              <Drawer
+                title=" Edit Vital Signs"
+                width={320}
+                closable={false}
+                onClose={onChildrenDrawerClose}
+                open={statusEditMedia}
+              >
+                <Form
+                  name="vitas_signs"
+                  labelCol={{
+                    span: 8,
+                  }}
+                  wrapperCol={{
+                    span: 16,
+                  }}
+                  style={{
+                    maxWidth: 600,
+                  }}
+                  initialValues={{
+                    remember: true,
+                  }}
+                  onFinish={onFinishTab2}
+                >
+                  <Form.Item
+                    label="cp"
+                    name="cp"
+                    initialValue={detailRecord.vital_signs[2]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input cp !",
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      min={0}
+                      style={{
+                        width: "100%",
+                      }}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    label="trestbps"
+                    name="trestbps"
+                    initialValue={detailRecord.vital_signs[3]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input trestbps !",
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      min={0}
+                      style={{
+                        width: "100%",
+                      }}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    label="chol"
+                    name="chol"
+                    initialValue={detailRecord.vital_signs[4]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input chol !",
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      min={0}
+                      style={{
+                        width: "100%",
+                      }}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    label="fbs"
+                    name="fbs"
+                    initialValue={detailRecord.vital_signs[5]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input fbs !",
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      min={0}
+                      style={{
+                        width: "100%",
+                      }}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    label="restecg"
+                    name="restecg"
+                    initialValue={detailRecord.vital_signs[6]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input restecg !",
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      min={0}
+                      style={{
+                        width: "100%",
+                      }}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    label="thalach"
+                    name="thalach"
+                    initialValue={detailRecord.vital_signs[7]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input thalach !",
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      min={0}
+                      style={{
+                        width: "100%",
+                      }}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    label="exang"
+                    name="exang"
+                    initialValue={detailRecord.vital_signs[8]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input exang !",
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      min={0}
+                      style={{
+                        width: "100%",
+                      }}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    label="oldpeak"
+                    name="oldpeak"
+                    initialValue={detailRecord.vital_signs[9]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input oldpeak !",
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      min={0}
+                      style={{
+                        width: "100%",
+                      }}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    label="slope"
+                    name="slope"
+                    initialValue={detailRecord.vital_signs[10]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input slope !",
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      min={0}
+                      style={{
+                        width: "100%",
+                      }}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    label="ca"
+                    name="ca"
+                    initialValue={detailRecord.vital_signs[11]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input ca !",
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      min={0}
+                      style={{
+                        width: "100%",
+                      }}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    label="thal"
+                    name="thal"
+                    initialValue={detailRecord.vital_signs[12]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input thal !",
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      min={0}
+                      style={{
+                        width: "100%",
+                      }}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    wrapperCol={{
+                      offset: 8,
+                      span: 16,
+                    }}
+                  >
+                    <Button type="primary" htmlType="submit">
+                      Submit
+                    </Button>
+                  </Form.Item>
+                  {
+                    <Modal
+                      title="Confirm Edit"
+                      open={isModalVisibleEdit}
+                      onOk={handleDeleteConfirmEdit}
+                      onCancel={handleDeleteCancelEdit}
+                    >
+                      <p>Are you sure to EDIT items selected !?</p>
+                    </Modal>
+                  }
+                </Form>
+              </Drawer>
+            )}
+          </Col>
+        </Row>
         <Row>
           <Col span={6}>
             <DescriptionItem title="cp" content={detailRecord.vital_signs[2]} />

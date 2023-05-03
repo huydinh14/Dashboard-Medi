@@ -129,22 +129,23 @@ import React, { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
 import moment from "moment";
 import { webSocketClient } from "../socket/websocket";
+import { Cascader, DatePicker } from "antd";
+import hearthBeatApi from "../api/modules/hearthbeat.api";
+import { toast } from "react-toastify";
 
 const Analytics = () => {
   const [data, setData] = useState([]);
   const [series, setSeries] = useState([{ data: [] }]);
-
+  const [listIOT, setListIOT] = useState([]);
+  const [ip_mac, setIp_mac] = useState("");
+  const [statusToast, setStatusToast] = useState(false);
   const [options, setOptions] = useState({
     chart: {
       id: "realtime",
       height: 350,
       type: "line",
       animations: {
-        enabled: true,
-        easing: "linear",
-        dynamicAnimation: {
-          speed: 1000,
-        },
+        enabled: false,
       },
       toolbar: {
         show: false,
@@ -160,7 +161,7 @@ const Analytics = () => {
       curve: "smooth",
     },
     title: {
-      text: "Realtime Heartbeat Chart", 
+      text: "Realtime Heartbeat Chart",
       align: "center",
     },
     markers: {
@@ -182,8 +183,24 @@ const Analytics = () => {
 
   const handleMessage = (message) => {
     const newData = message.message.split(",");
-    setData(newData);
+    if (newData[0] === ip_mac) {
+        setData(newData);
+    }
   };
+
+  const onChangeIOT = (value) => {
+    setIp_mac(value[0]);
+  };
+
+  useEffect(() => {
+    if (statusToast) {
+      toast.success(`Heartbeat: ${data[0]} Connected`, {
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: 3000,
+      });
+      setStatusToast(false);
+    }
+  }, [statusToast]);
 
   useEffect(() => {
     webSocketClient.addListener("warning", handleMessage);
@@ -205,17 +222,43 @@ const Analytics = () => {
   useEffect(() => {
     const newTime = Date.now();
     const y = Number(data[1]);
-    console.log("🚀 ~ file: Analytics.jsx:204 ~ useEffect ~ y:", y)
     setSeries((prevSeries) => {
       const newSeries = [...prevSeries[0].data, { x: newTime, y }];
       return [{ data: newSeries.slice(-10) }];
     });
   }, [data]);
 
-console.log("🚀 ~ file: Analytics.jsx:204 ~ useEffect ~ series:", series)
+  const fetch_iot = async () => {
+    const { response } = await hearthBeatApi.getAllHB();
+    if (response) {
+      const data = response.map((item) => {
+        return {
+          label: item.ip_mac,
+          value: item.ip_mac,
+        };
+      });
+      setListIOT(data);
+    }
+  };
+
+  useEffect(() => {
+    fetch_iot();
+  }, []);
 
   return (
     <div id="chart">
+      <div className="analytic_cbb">
+        <Cascader
+          style={{
+            width: "25%",
+          }}
+          status="error"
+          options={listIOT}
+          onChange={onChangeIOT}
+          placeholder="Choose device"
+          maxTagCount="responsive"
+        />
+      </div>
       <Chart options={options} series={series} type="line" height={500} />
     </div>
   );

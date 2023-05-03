@@ -4,7 +4,8 @@ const userEndpoints = {
   getMediaRecord: "mediaRecord/get_media_record",
   addMediaRecord: "mediaRecord/add_media_record",
   predictor: "mediaRecord/predictor",
-  endMediaRecord: "mediaRecord/end_media_record"
+  endMediaRecord: "mediaRecord/end_media_record",
+  updateMediaRecord: "mediaRecord/update_media_record",
 };
 
 const mediaRecordApi = {
@@ -43,6 +44,17 @@ const mediaRecordApi = {
     try {
       const response = await privateClient.post(userEndpoints.endMediaRecord, {
         idMed,
+      });
+      return { response };
+    } catch (error) {
+      return { error };
+    }
+  },
+  updateMediaRecord: async (id, data) => {
+    try {
+      const response = await privateClient.post(userEndpoints.updateMediaRecord, {
+       id,
+       data
       });
       return { response };
     } catch (error) {

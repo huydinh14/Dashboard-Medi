@@ -5,7 +5,8 @@ const hearthBeatEndpoints = {
   getHB: "esp/get_hb",
   getHBCbb: "esp/get_hb_cbb",
   updateHbStatus: "esp/update_hb_status",
-  updateHbPatientCCCD: "esp/update_hb_patient_cccd"
+  updateHbPatientCCCD: "esp/update_hb_patient_cccd",
+  getHBFromIPMac: "esp/get_hb_from_ip_mac",
 };
 
 const hearthBeatApi = {
@@ -34,6 +35,16 @@ const hearthBeatApi = {
           selectedHospital
         });
       return { responseHB };
+    } catch (error) {
+      return { error };
+    }
+  },
+  getHBFromIPMac: async (ip_mac) => {
+    try {
+      const response = await privateClient.post(hearthBeatEndpoints.getHBFromIPMac, {
+        ip_mac,
+      });
+      return { response };
     } catch (error) {
       return { error };
     }

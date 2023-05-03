@@ -73,9 +73,10 @@
 
 import React from 'react';
 import { Table } from 'antd';
+import './table.css';
 
 const CustomTable = ({ columns, data, rowSelection, ...rest }) => (
-  <Table columns={columns} dataSource={data} {...rest} rowSelection={rowSelection}/>
+  <Table columns={columns} dataSource={data} {...rest} rowSelection={rowSelection}  rowClassName={() => 'row-class-name'}/>
 );
 
 export default CustomTable;

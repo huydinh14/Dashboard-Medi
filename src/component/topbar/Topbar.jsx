@@ -119,7 +119,6 @@ const Topbar = () => {
   );
 
   const handleMessage = async (data) => {
-    console.log("🚀 ~ file: Topbar.jsx:122 ~ handleMessage ~ data:", data)
     await setMessage(data.message);
   };
 
@@ -227,7 +226,7 @@ const Topbar = () => {
         <div className="topbar-right-item">
           <Dropdown
             icon="bx bx-bell"
-            badge="12"
+            badge="5"
             contentData={notification}
             renderItems={(item, index) => renderNotificationItem(item, index)}
             //renderFooter={() => <Link to="/">View All</Link>}

@@ -11,6 +11,8 @@ import dashboardApi from "../api/modules/dashboard.api";
 import { toast } from "react-toastify";
 import WebSocketClient from "../socket/websocket";
 import hearthBeatApi from "../api/modules/hearthbeat.api";
+import patientApi from "../api/modules/patient.api";
+import hospitalApi from "../api/modules/hospital.api";
 
 // Tính toán ngày đầu tiên và cuối cùng trong tuần gần nhất
 const startOfWeek = moment().startOf("day").subtract(6, "days");
@@ -20,29 +22,6 @@ for (let i = 0; i < 7; i++) {
   xaxisCategories.push(currDate.format("DD/MM/YY"));
   currDate.add(1, "days");
 }
-
-const columnPatients = [
-  {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-  },
-  {
-    title: "Heartbeat (%)",
-    dataIndex: "heartDiseasePercent",
-    key: "heartDiseasePercent",
-    align: "center",
-  },
-  {
-    title: "Detail",
-    key: "detail",
-    render: (_, record) => (
-      <Space size="middle">
-        <a style={{ color: "blue" }}>Detail</a>
-      </Space>
-    ),
-  },
-];
 
 const dataCondition = [
   {
@@ -69,31 +48,6 @@ const dataCondition = [
     key: "5",
     name: "Nguyễn Vũ Lộc",
     heartDiseasePercent: "50",
-  },
-];
-
-const columnHospital = [
-  {
-    title: "Hospital Id",
-    dataIndex: "hospitalId",
-    key: "hospitalId",
-  },
-  {
-    title: "Hospital Name",
-    dataIndex: "hospitalName",
-    key: "hospitalName",
-  },
-  {
-    title: "Total Device",
-    dataIndex: "totalDevice",
-    key: "totalDevice",
-    align: "center",
-  },
-  {
-    title: "Date",
-    dataIndex: "date",
-    key: "date",
-    align: "center",
   },
 ];
 
@@ -143,6 +97,9 @@ const Dashboard = () => {
   const [dataChart, setDataChart] = useState([]);
   const [listIOT, setListIOT] = useState([]);
   const [ip_mac, setIp_mac] = useState("");
+  const [patientList, setPatientList] = useState([]);
+  const [hospitalList, setHospitalList] = useState([]);
+  const [patientInfo, setPatientInfo] = useState({ name: "", CCCD: "" });
 
   const { user } = useSelector((state) => state.user);
 
@@ -201,19 +158,79 @@ const Dashboard = () => {
     },
   };
 
+  const columnPatients = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      height: "10px",
+    },
+    {
+      title: "CCCD",
+      dataIndex: "_id",
+      key: "cccd",
+    },
+    {
+      title: "Heartbeat Max",
+      dataIndex: "maxAvg",
+      key: "maxAvg",
+      align: "center",
+    },
+  ];
+
+  const columnHospital = [
+    {
+      title: "Hospital Name",
+      dataIndex: ["_id", "name"],
+      key: "hospitalName",
+      align: "center",
+    },
+    {
+      title: "Total Device",
+      dataIndex: "count",
+      key: "totalDevice",
+      align: "center",
+    },
+  ];
+
   const onChangeIOT = (value) => {
+    if(value === undefined) {
+      setPatientInfo({});
+    }
     setIp_mac(value);
   };
 
-  useEffect(() => {
-    const fetchDataChart = async () => {
-      const { response } = await dashboardApi.getHeartRateChartWeek(ip_mac);
-      setDataChart(response.beat_avgs);
-    };
-    fetchDataChart();
-  }, [user, ip_mac]);
+  const fetchPatientFromIpMac = async (ip_mac) => {
+    if(ip_mac === "" ) return;
+    const { response } = await hearthBeatApi.getHBFromIPMac(ip_mac);
+    setPatientInfo(response.patient_cccd);
+  };
 
   useEffect(() => {
+    console.log("🚀 ~ file: Dashboard.jsx:211 ~ useEffect ~ ip_mac:", ip_mac)
+    if(ip_mac === null || ip_mac === undefined || ip_mac === "")
+    {
+      setDataChart([]);
+    }
+    else
+    {
+      const fetchDataChart = async () => {
+        const { response } = await dashboardApi.getHeartRateChartWeek(ip_mac);
+        setDataChart(response.beat_avgs);
+      };
+      fetchDataChart();
+      fetchPatientFromIpMac(ip_mac);
+    }
+  }, [ip_mac]);
+
+  useEffect(() => {
+    if(dataChart.length === 0)
+    {
+      setArray1([0, 0, 0, 0, 0, 0, 0]);
+      setArray2([0, 0, 0, 0, 0, 0, 0]);
+      setArray3([0, 0, 0, 0, 0, 0, 0]);
+      return;
+    }
     if (dataChart && dataChart.length > 0) {
       let newAr1 = [...array1];
       let newAr2 = [...array2];
@@ -240,16 +257,16 @@ const Dashboard = () => {
 
   const fetch_iot = async () => {
     const { response } = await hearthBeatApi.getAllHB();
-    if(response) {
+    if (response) {
       const data = response.map((item) => {
         return {
           label: item.ip_mac,
           value: item.ip_mac,
-        }
-      })
+        };
+      });
       setListIOT(data);
     }
-  }
+  };
 
   // useEffect(() => {
   //   //const socketCL = new WebSocketClient("ws://165.22.55.235:5000/");
@@ -262,22 +279,25 @@ const Dashboard = () => {
   //   };
   // }, []);
 
-  // useEffect(() => {
-  //   if (data.length > 0) {
-  //     const tempDB = statusCardsDB;
-  //     const datas = data.split(",");
-  //     setStatusCardsDB(
-  //       tempDB.map((item, index) => {
-  //         if (index > 2 && index < 6) {
-  //           item.count = datas[0].toString();
-  //           datas.shift();
-  //           return item;
-  //         }
-  //         return item;
-  //       })
-  //     );
-  //   }
-  // }, [data]);
+  const fetchPatientList = async () => {
+    const { response, error } = await patientApi.getPatientTopHB();
+    if (response) {
+      setPatientList(response);
+    }
+    if (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchHospitalList = async () => {
+    const { response, error } = await hospitalApi.getAllTop5Device();
+    if (response) {
+      setHospitalList(response);
+    }
+    if (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     if (user === null) return;
@@ -292,6 +312,8 @@ const Dashboard = () => {
       };
       fetchData();
       fetch_iot();
+      fetchPatientList();
+      fetchHospitalList();
     }
   }, [user]);
 
@@ -325,6 +347,10 @@ const Dashboard = () => {
               options={listIOT}
               onChange={onChangeIOT}
             />
+            <div className="patien_name">
+              <label className="label_NamePatient">Patient Name: </label>
+              <label style={{color: "red"}} className="label_NamePatient">{ patientInfo ? `${patientInfo.name} - ${patientInfo.CCCD}` : ""}</label>
+            </div>
           </div>
           <h2 className="page-header">Dashboard</h2>
           <div className="row">
@@ -380,7 +406,7 @@ const Dashboard = () => {
                 renderBody={(item, index) => renderCusomerBody(item, index)}/> */}
                       <CustomTable
                         columns={columnPatients}
-                        data={dataCondition}
+                        data={patientList}
                         pagination={false}
                       />
                     </div>
@@ -402,7 +428,7 @@ const Dashboard = () => {
                 renderBody={(item, index) => renderOrderBody(item, index)}/> */}
                       <CustomTable
                         columns={columnHospital}
-                        data={dataTopHospital}
+                        data={hospitalList}
                         pagination={false}
                       />
                     </div>

@@ -203,8 +203,13 @@ iframe {
 
 .analytic_cbb{
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: right;
+  align-items: flex-end;
+}
+
+.analytic_cbb > div{
+  margin-top: 10px;
 }
 
 .ant-table {
