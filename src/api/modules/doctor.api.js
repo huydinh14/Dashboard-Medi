@@ -4,7 +4,9 @@ const userEndpoints = {
   getDoctor: "doctor/get_doctor",
   getAllDoctor: "doctor/get_all_doctor",
   getAllDoctorCBB: "doctor/get_all_doctor_cbb",
-  addDoctor: "doctor/add_doctor"
+  addDoctor: "doctor/add_doctor",
+  updateDoctor: "doctor/update_doctor",
+  deleteDoctor: "doctor/delete_doctor"
 };
 
 const doctorApi = {
@@ -33,10 +35,29 @@ const doctorApi = {
     }
   },
   addDoctor: async (doctorNew) => {
-    console.log("🚀 ~ file: doctor.api.js:36 ~ addDoctor: ~ doctorNew:", doctorNew)
     try {
       const response = await privateClient.post(userEndpoints.addDoctor, {
         doctorNew
+      });
+      return { response };
+    } catch (error) {
+      return { error };
+    }
+  },
+  updateDoctor: async (doctorUpdate) => {
+    try {
+      const response = await privateClient.put(userEndpoints.updateDoctor, {
+        doctorUpdate
+      });
+      return { response };
+    } catch (error) {
+      return { error };
+    }
+  },
+  deleteDoctor: async (doctorId) => {
+    try {
+      const response = await privateClient.post(userEndpoints.deleteDoctor, {
+        doctorId
       });
       return { response };
     } catch (error) {

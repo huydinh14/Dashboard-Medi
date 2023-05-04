@@ -76,7 +76,6 @@ const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
       currentDetailRecord._id,
       dataEdit
     );
-    console.log("🚀 ~ file: DetaiRecord.jsx:77 ~ updateMeDetailVistal ~ response:", response)
     if (response) {
       setCurrentDetailRecord(response);
       toast.success(`Update success`, {
@@ -88,7 +87,6 @@ const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
         draggable: true,
         progress: undefined,
       });
-      //statusFetcch();
     }
   };
 
@@ -191,18 +189,26 @@ const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
             />
           </Col>
           <Col span={4}>
-            <DescriptionItem title="Age" content={currentDetailRecord.patient.age} />
+            <DescriptionItem
+              title="Age"
+              content={currentDetailRecord.patient.age}
+            />
           </Col>
           <Col span={8}>
             <DescriptionItem
               title="Gender"
-              content={currentDetailRecord.patient.gender === 1 ? "Male" : "Female"}
+              content={
+                currentDetailRecord.patient.gender === 1 ? "Male" : "Female"
+              }
             />
           </Col>
         </Row>
         <Row>
           <Col span={12}>
-            <DescriptionItem title="CCCD" content={currentDetailRecord.patient.CCCD} />
+            <DescriptionItem
+              title="CCCD"
+              content={currentDetailRecord.patient.CCCD}
+            />
           </Col>
           <Col span={12}>
             <DescriptionItem
@@ -544,7 +550,10 @@ const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
         </Row>
         <Row>
           <Col span={6}>
-            <DescriptionItem title="cp" content={currentDetailRecord.vital_signs[2]} />
+            <DescriptionItem
+              title="cp"
+              content={currentDetailRecord.vital_signs[2]}
+            />
           </Col>
           <Col span={6} style={{ fontWeight: "bold" }}>
             <DescriptionItem
@@ -627,7 +636,8 @@ const DetaiRecord = ({ open, close, detailRecord, statusFetcch }) => {
             <p style={{ fontWeight: "bold", color: "red", fontSize: "20px" }}>
               {predictorResult
                 ? predictorResult + " %"
-                : (parseFloat(currentDetailRecord?.target) * 100).toFixed(2) + " %"}
+                : (parseFloat(currentDetailRecord?.target) * 100).toFixed(2) +
+                  " %"}
             </p>
           </Col>
           <Col span={16}>

@@ -4,6 +4,9 @@ const hospitalEndpoints = {
     getAll: "hospital/get_all",
     getAllCBB: "hospital/get_all_cbb",
     getAllTop5Device: "hospital/get_all_top_5_device",
+    addHospital: "hospital/add_hospital",
+    updateHospital: "hospital/update_hospital",
+    deleteHospital: "hospital/delete_hospital"
 }
 
 const hospitalApi = {
@@ -30,7 +33,37 @@ const hospitalApi = {
         } catch (error) {
             return { error };
         }
-    }
+    },
+    addHospital: async (name, address, phone) => {
+        try {
+          const response = await privateClient.post(hospitalEndpoints.addHospital, {
+            name, address, phone
+          });
+          return { response };
+        } catch (error) {
+          return { error };
+        }
+      },
+      updateHospital: async (hospitalUD) => {
+        try {
+          const response = await privateClient.post(hospitalEndpoints.updateHospital, {
+            hospitalUD
+          });
+          return { response };
+        } catch (error) {
+          return { error };
+        }
+      },
+      deleteHospital: async (id) => {
+        try {
+          const response = await privateClient.post(hospitalEndpoints.deleteHospital, {
+            id
+          });
+          return { response };
+        } catch (error) {
+          return { error };
+        }
+      }
 }
 
 export default hospitalApi;

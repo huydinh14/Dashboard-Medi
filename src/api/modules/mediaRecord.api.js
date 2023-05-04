@@ -6,6 +6,7 @@ const userEndpoints = {
   predictor: "mediaRecord/predictor",
   endMediaRecord: "mediaRecord/end_media_record",
   updateMediaRecord: "mediaRecord/update_media_record",
+  deleteMediaRecord: "mediaRecord/delete_media_record"
 };
 
 const mediaRecordApi = {
@@ -55,6 +56,16 @@ const mediaRecordApi = {
       const response = await privateClient.post(userEndpoints.updateMediaRecord, {
        id,
        data
+      });
+      return { response };
+    } catch (error) {
+      return { error };
+    }
+  },
+  deleteMediaRecord: async (id) => {
+    try {
+      const response = await privateClient.post(userEndpoints.deleteMediaRecord, {
+       id
       });
       return { response };
     } catch (error) {

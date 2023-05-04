@@ -7,13 +7,15 @@ const hearthBeatEndpoints = {
   updateHbStatus: "esp/update_hb_status",
   updateHbPatientCCCD: "esp/update_hb_patient_cccd",
   getHBFromIPMac: "esp/get_hb_from_ip_mac",
+  updateHB: "esp/update_hb",
+  deleteHB: "esp/delete_hb",
 };
 
 const hearthBeatApi = {
-  addPatient: async (patient) => {
+  addHB: async (hb) => {
     try {
       const response = await privateClient.post(hearthBeatEndpoints.addHB, {
-        patient
+        hb
       });
       return { response };
     } catch (error) {
@@ -67,6 +69,26 @@ const hearthBeatApi = {
         cccd
       });
       return { responseHNCCCD };
+    } catch (error) {
+      return { error };
+    }
+  },
+  updateHB: async (hb) => {
+    try {
+      const response = await privateClient.post(hearthBeatEndpoints.updateHB, {
+        hb
+      });
+      return { response };
+    } catch (error) {
+      return { error };
+    }
+  },
+  deleteHB: async (id) => {
+    try {
+      const response = await privateClient.post(hearthBeatEndpoints.deleteHB, {
+        id
+      });
+      return { response };
     } catch (error) {
       return { error };
     }

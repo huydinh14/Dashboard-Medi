@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import { DatePicker, Space, Table, Tag } from "antd";
+import { DatePicker, Modal, Space, Table, Tag } from "antd";
 import mediaRecordApi from "../api/modules/mediaRecord.api";
 import { toast } from "react-toastify";
 import MediaRecordForm from "../component/media-record-form/MediaRecordForm";
@@ -106,6 +106,8 @@ const MediaRecord = () => {
   const [isModalOpenDetail, setIsModalOpenDetail] = useState(false);
   const [detailRecord, setDetailRecord] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [isModalVisibleDelete, setIsModalVisibleDelete] = useState(false);
 
   const handleChangeDate = (value) => {
     try {
@@ -114,13 +116,64 @@ const MediaRecord = () => {
     } catch (error) {}
   };
 
+  const handleRowSelection = (selectedRowKeys) => {
+    setSelectedRowKeys(selectedRowKeys);
+  };
+
+  const handleDeleteMediaConfirm = async () => {
+    if (data.length === 0) return;
+    const newData = data.filter((item) => !selectedRowKeys.includes(item.key));
+    const itemDelete = data
+      .filter((item) => selectedRowKeys.includes(item.key))
+      .map((item) => item._id);
+    setData(newData);
+    const { response } = await mediaRecordApi.deleteMediaRecord(itemDelete);
+    if (response) {
+      toast.success(`Delete Success!`, {
+        position: "bottom-left",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
+    // Cập nhật lại selectedRowKeys
+    setSelectedRowKeys([]);
+
+    // Ẩn dialog xác nhận
+    setIsModalVisibleDelete(false);
+  };
+  const handleDeleteMediaCancel = () => {
+    setIsModalVisibleDelete(false);
+  };
+
+  const handleDeleteMedia = () => {
+    setIsModalVisibleDelete(true);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: handleRowSelection,
+    selections: [
+      Table.SELECTION_ALL,
+      Table.SELECTION_NONE,
+      {
+        key: "deleteItemSelected",
+        text: "Delete Selected",
+        onSelect: handleDeleteMedia,
+      },
+    ],
+  };
+
   const showModalAddPatient = () => {
     setIsModalOpen(true);
   };
 
   const handleCloseDetailRecord = () => {
     setIsModalOpenDetail(false);
-    fetchData();
+    //fetchData();
   };
 
   const fetchDataRunning = () => {
@@ -197,6 +250,8 @@ const MediaRecord = () => {
                   <Table
                     columns={columns}
                     dataSource={data}
+                    rowSelection={rowSelection}
+                    rowKey={(record) => record.key}
                     scroll={{
                       x: 1500,
                       y: window.innerHeight - 220,
@@ -207,6 +262,7 @@ const MediaRecord = () => {
                           // console.log("🚀 ~ file: MediaRecord.jsx:80 ~ event", event)
                           // console.log("🚀 ~ file: MediaRecord.jsx:80 ~ record", record)
                           // console.log("🚀 ~ file: MediaRecord.jsx:80 ~ rowIndex", rowIndex)
+                          setSelectedRowKeys([record.key]);
                           setIsModalOpenDetail(true);
                           setDetailRecord(record);
                         }, // click row
@@ -225,6 +281,16 @@ const MediaRecord = () => {
                       statusFetcch={fetchDataRunning}
                     />
                   )}
+                  {
+                    <Modal
+                      title="Confirm Delete"
+                      open={isModalVisibleDelete}
+                      onOk={handleDeleteMediaConfirm}
+                      onCancel={handleDeleteMediaCancel}
+                    >
+                      <p>Are you sure to delete items selected !?</p>
+                    </Modal>
+                  }
                 </div>
               </div>
             </div>

@@ -7,6 +7,8 @@ const patientEndpoints = {
     getPatientById: "patient/get_patient_by_id",
     updatePatientStatus: "patient/update_patient_status",
     getPatientTopHB: "patient/get_patient_top_hb",
+    updatePatient: "patient/update_patient",
+    deletePatient: "patient/delete_patient"
 }
 
 const patientApi = {
@@ -63,6 +65,26 @@ const patientApi = {
             return { error };
         }
     },
+    updatePatient: async (patientUD) => {
+        try {
+            const response = await privateClient.put(patientEndpoints.updatePatient,{
+                patientUD
+            });
+            return { response };
+        } catch (error) {
+            return { error };
+        }
+    },
+    deletePatient: async (id) => {
+        try {
+            const response = await privateClient.post(patientEndpoints.deletePatient,{
+                id
+            });
+            return { response };
+        } catch (error) {
+            return { error };
+        }
+    }
 }
 
 export default patientApi;

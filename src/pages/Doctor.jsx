@@ -16,6 +16,7 @@ import {
 import doctorApi from "../api/modules/doctor.api";
 import Loading from "../component/loading/Loading";
 import hospitalApi from "../api/modules/hospital.api";
+import EditForm from "../component/editForm/EditForm";
 
 const layout = {
   labelCol: {
@@ -26,77 +27,6 @@ const layout = {
   },
 };
 
-const items = [
-  {
-    key: "1",
-    label: "Edit",
-  },
-  {
-    key: "2",
-    label: "Delete",
-  },
-];
-
-const columnDoctor = [
-  {
-    title: "",
-    dataIndex: "stt",
-    alight: "center",
-    key: "stt",
-    width: "10%",
-  },
-  {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-    sorter: (a, b) => a.name.length - b.name.length,
-    ellipsis: "true",
-  },
-  {
-    title: "Phone",
-    dataIndex: "phone",
-    key: "phone",
-  },
-  {
-    title: "Specialist",
-    dataIndex: "specialist",
-    key: "specialist",
-    filters: [],
-    filterMode: "tree",
-    filterSearch: true,
-    onFilter: (value, record) => record.name.startsWith(value),
-  },
-  {
-    title: "Email",
-    dataIndex: "email",
-    key: "email",
-  },
-  {
-    title: "Hospital Name",
-    dataIndex: ["hospital_id", "name"],
-    key: "hospitalName",
-  },
-  {
-    title: "Action",
-    dataIndex: "operation",
-    alight: "center",
-    key: "operation",
-    render: () => (
-      <Space size="middle">
-        <Dropdown
-          menu={{
-            items,
-          }}
-        >
-          <a>
-            More <i className="bx bx-chevron-down"></i>
-          </a>
-        </Dropdown>
-      </Space>
-    ),
-  },
-];
-
 const Doctor = () => {
   const [dataDoctor, setDataDoctor] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -104,6 +34,8 @@ const Doctor = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [hospitalList, setHospitalList] = useState([]);
+  const [statusDoctorDetail, setStatusDoctorDetail] = useState(false);
+  const [itemDetail, setItemDetail] = useState({});
   const [form] = Form.useForm();
 
   const { Option } = Select;
@@ -117,6 +49,80 @@ const Doctor = () => {
       range: "${label} must be between ${min} and ${max}",
     },
   };
+
+  const items = [
+    {
+      key: selectedRowKeys,
+      label: "Edit",
+      onClick: async (itemSelect) => {
+        const getItemSelect = dataDoctor.find(
+          (item) => item.key === itemSelect.key
+        );
+        await setItemDetail(getItemSelect);
+        await setStatusDoctorDetail(true);
+      },
+    },
+  ];
+
+  const columnDoctor = [
+    {
+      title: "",
+      dataIndex: "stt",
+      alight: "center",
+      key: "stt",
+      width: "10%",
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      sorter: (a, b) => a.name.length - b.name.length,
+      ellipsis: "true",
+    },
+    {
+      title: "Phone",
+      dataIndex: "phone",
+      key: "phone",
+    },
+    {
+      title: "Specialist",
+      dataIndex: "specialist",
+      key: "specialist",
+      filters: [],
+      filterMode: "tree",
+      filterSearch: true,
+      onFilter: (value, record) => record.name.startsWith(value),
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "Hospital Name",
+      dataIndex: ["hospital_id", "name"],
+      key: "hospitalName",
+    },
+    {
+      title: "Action",
+      dataIndex: "operation",
+      alight: "center",
+      key: "operation",
+      render: () => (
+        <Space size="middle">
+          <Dropdown
+            menu={{
+              items,
+            }}
+          >
+            <a>
+              More <i className="bx bx-chevron-down"></i>
+            </a>
+          </Dropdown>
+        </Space>
+      ),
+    },
+  ];
 
   const onFinish = (doctorNew) => {
     setErrorMessage(undefined);
@@ -177,6 +183,11 @@ const Doctor = () => {
     setIsModalVisible(true);
   };
 
+  const handleCloseDetailItem = () => {
+    setStatusDoctorDetail(false);
+    fetchAllDoctor();
+  };
+
   const rowSelection = {
     selectedRowKeys,
     onChange: handleRowSelection,
@@ -191,13 +202,15 @@ const Doctor = () => {
     ],
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     // Xóa row khỏi tableData
     if (dataDoctor.length === 0) return;
     const newData = dataDoctor.filter(
       (item) => !selectedRowKeys.includes(item.key)
     );
     setDataDoctor(newData);
+
+      const {response, error} = await doctorApi.deleteDoctor(selectedRowKeys);
 
     // Cập nhật lại selectedRowKeys
     setSelectedRowKeys([]);
@@ -361,6 +374,13 @@ const Doctor = () => {
                 data={dataDoctor}
                 rowSelection={rowSelection}
                 rowKey={(record) => record.key}
+                onRow={(record, rowIndex) => {
+                  return {
+                    onClick: (event) => {
+                      setSelectedRowKeys([record.key]);
+                    },
+                  };
+                }}
               />
               <Modal
                 title="Confirm Delete"
@@ -370,6 +390,14 @@ const Doctor = () => {
               >
                 <p>Are you sure to delete items selected !?</p>
               </Modal>
+              {statusDoctorDetail && (
+                <EditForm
+                  open={statusDoctorDetail}
+                  close={handleCloseDetailItem}
+                  detailItem={itemDetail}
+                  editName="Edit Doctor"
+                />
+              )}
             </div>
           </div>
         </div>

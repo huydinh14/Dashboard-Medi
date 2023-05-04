@@ -56,10 +56,6 @@ const handleChangeNormal  = async (value) => {
   useEffect(() => {
     const fetchData = async () => {
       const { response, error } = await ruleApi.getRule();
-      console.log(
-        "🚀 ~ file: ConditionRule.jsx:36 ~ fetchData ~ response:",
-        response
-      );
       if (response) {
         setRuleList(response);
       }
@@ -117,7 +113,6 @@ const handleChangeNormal  = async (value) => {
         "Heart rate is higher than 100 beats per minute. This condition may cause symptoms such as palpitations, shortness of breath, dizziness, and fatigue. If left untreated, it may lead to more serious complications.",
     },
   ];
-  console.log("111", value1, value2, value3);
   return (
     <div>
       <h2 className="page-header">Pathogens</h2>

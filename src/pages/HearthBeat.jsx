@@ -15,6 +15,10 @@ import {
   Tag,
 } from "antd";
 import hearthBeatApi from "../api/modules/hearthbeat.api";
+import patientApi from "../api/modules/patient.api";
+import hospitalApi from "../api/modules/hospital.api";
+import EditForm from "../component/editForm/EditForm";
+import { toast } from "react-toastify";
 
 const HearthBeat = () => {
   const hearthBeatIOTColumn = [
@@ -93,7 +97,10 @@ const HearthBeat = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState();
   const [hospitalList, setHospitalList] = useState([]);
+  const [patients, setPatients] = useState([]);
   const [form] = Form.useForm();
+  const [statusDoctorDetail, setStatusDoctorDetail] = useState(false);
+  const [itemDetail, setItemDetail] = useState({});
 
   const { Option } = Select;
 
@@ -109,28 +116,13 @@ const HearthBeat = () => {
 
   const onFinish = (heartbeat) => {
     setErrorMessage(undefined);
-    const newHearthBeat = {
-      name: heartbeat.user.name,
-      age: heartbeat.user.age + "",
-      phone: heartbeat.user.phone,
-      gender: heartbeat.user.gender,
-      CCCD: heartbeat.user.CCCD,
-      hospital_id: heartbeat.user.Hospital_Id,
-      status: false,
-    };
-    const fetchAddPatient = async () => {
+    const fetchAddHB = async () => {
       try {
-        const { response, error } = await hearthBeatApi.addPatient(
-          newHearthBeat
-        );
+        const { response, error } = await hearthBeatApi.addHB(heartbeat.hb);
         if (response) {
           setIsModalOpen(false);
           form.resetFields();
           fetchData();
-          // setPatientList((prevPatientList) => [
-          //   ...prevPatientList,
-          //   response
-          // ]);
         }
         if (error) {
           setErrorMessage(error.message);
@@ -139,7 +131,7 @@ const HearthBeat = () => {
         console.log("Failed to fetch patient list: ", error);
       }
     };
-    fetchAddPatient();
+    fetchAddHB();
   };
   const layout = {
     labelCol: {
@@ -161,14 +153,35 @@ const HearthBeat = () => {
     setIsModalOpen(false);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleCloseDetailItem = () => {
+    setStatusDoctorDetail(false);
+    fetchData();
+  };
+
+  const handleDeleteConfirm = async () => {
     // Xóa row khỏi tableData
     if (hearthBeatList.length === 0) return;
     const newData = hearthBeatList.filter(
       (item) => !selectedRowKeys.includes(item.key)
     );
+    const itemDelete = hearthBeatList
+      .filter((item) => selectedRowKeys.includes(item.key))
+      .map((item) => item._id);
     setHearthBeatList(newData);
 
+    // Xóa row khỏi database
+    const { response } = await hearthBeatApi.deleteHB(itemDelete);
+    if (response) {
+      toast.success(`Delete Success!`, {
+        position: "bottom-left",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
     // Cập nhật lại selectedRowKeys
     setSelectedRowKeys([]);
 
@@ -205,19 +218,21 @@ const HearthBeat = () => {
 
   const items = [
     {
-      key: "1",
+      key: selectedRowKeys,
       label: "Edit",
-    },
-    {
-      key: "2",
-      label: "Delete",
+      onClick: async (itemSelect) => {
+        const getItemSelect = hearthBeatList.find(
+          (item) => item.key === parseInt(itemSelect.key)
+        );
+        await setItemDetail(getItemSelect);
+        await setStatusDoctorDetail(true);
+      },
     },
   ];
 
   const fetchData = async () => {
     try {
       const { response } = await hearthBeatApi.getAllHB();
-      console.log(response);
       setHearthBeatList(response);
     } catch (error) {
       console.log(error);
@@ -225,17 +240,31 @@ const HearthBeat = () => {
   };
 
   useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const { response } = await patientApi.getPatientInActive();
+        setPatients(response);
+      } catch (error) {
+        console.log("Failed to fetch patient list: ", error);
+      }
+    };
+    const fetchHospital = async () => {
+      const { responseHospital } = await hospitalApi.getAllCbb();
+      setHospitalList(responseHospital);
+    };
+    fetchHospital();
     fetchData();
+    fetchPatients();
   }, []);
 
   return (
     <div>
-      <h2 className="page-header">Hearth-Beats</h2>
+      <h2 className="page-header">HearthBeat-IOTs</h2>
       <div className="btn btn-add">
-        <button onClick={showModalAddPatient}>Add Hearth-Beat</button>
+        <button onClick={showModalAddPatient}>Add HearthBeat-IOT</button>
         {isModalOpen && (
           <Modal
-            title="Add Patient"
+            title="Add HearthBeat-IOT"
             open={isModalOpen}
             onOk={handleOk}
             footer={null}
@@ -244,7 +273,7 @@ const HearthBeat = () => {
             <Form
               form={form}
               {...layout}
-              name="Add Patient"
+              name="Add HearthBeat-IOT"
               onFinish={onFinish}
               style={{
                 maxWidth: 600,
@@ -252,7 +281,7 @@ const HearthBeat = () => {
               validateMessages={validateMessages}
             >
               <Form.Item
-                name={["hb", "name"]}
+                name={["hb", "name_device"]}
                 label="Name"
                 rules={[
                   {
@@ -263,58 +292,22 @@ const HearthBeat = () => {
                 <Input />
               </Form.Item>
               <Form.Item
-                name={["hb", "age"]}
-                label="Age"
-                rules={[
-                  {
-                    type: "number",
-                    required: true,
-                    min: 0,
-                    max: 99,
-                  },
-                ]}
-              >
-                <InputNumber />
-              </Form.Item>
-              <Form.Item
-                name={["hb", "gender"]}
-                label="Gender"
-                rules={[
-                  {
-                    type: "radio",
-                    required: true,
-                  },
-                ]}
-              >
-                <Radio.Group>
-                  <Radio value="1"> Male </Radio>
-                  <Radio value="0"> Female </Radio>
-                </Radio.Group>
-              </Form.Item>
-              <Form.Item
-                name={["hb", "phone"]}
-                label="Phone"
+                name={["hb", "ip_mac"]}
+                label="IP_MAC"
                 rules={[
                   {
                     required: true,
                   },
-                ]}
-              >
-                <Input type="number" />
-              </Form.Item>
-              <Form.Item
-                name={["hb", "CCCD"]}
-                label="CCCD"
-                rules={[
                   {
-                    required: true,
+                    pattern: /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/,
+                    message: "Invalid MAC Address, systax: XX:XX:XX:XX:XX:XX",
                   },
                 ]}
               >
-                <Input type="number" />
+                <Input />
               </Form.Item>
               <Form.Item
-                name={["hb", "Hospital_Id"]}
+                name={["hb", "hospital_id"]}
                 label="Hospital Name"
                 rules={[
                   {
@@ -331,21 +324,15 @@ const HearthBeat = () => {
                   ))}
                 </Select>
               </Form.Item>
-              {/* <Form.Item
-                name={["user", "Status"]}
-                label="Status"
-                rules={[
-                  {
-                    type: "radio",
-                    required: true,
-                  },
-                ]}
-              >
-                <Radio.Group>
-                  <Radio value="true"> Active </Radio>
-                  <Radio value="false"> InActive </Radio>
-                </Radio.Group>
-              </Form.Item> */}
+              <Form.Item name={["hb", "patient_cccd"]} label="Patient">
+                <Select>
+                  {patients?.map((option, index) => (
+                    <Option key={index} value={option.value}>
+                      {option.label}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
               <Form.Item
                 wrapperCol={{
                   ...layout.wrapperCol,
@@ -379,6 +366,13 @@ const HearthBeat = () => {
                 data={hearthBeatList}
                 rowSelection={rowSelection}
                 rowKey={(record) => record.key}
+                onRow={(record, rowIndex) => {
+                  return {
+                    onClick: (event) => {
+                      setSelectedRowKeys([record.key]);
+                    },
+                  };
+                }}
               />
               <Modal
                 title="Confirm Delete"
@@ -388,6 +382,14 @@ const HearthBeat = () => {
               >
                 <p>Are you sure to delete items selected !?</p>
               </Modal>
+              {statusDoctorDetail && (
+                <EditForm
+                  open={statusDoctorDetail}
+                  close={handleCloseDetailItem}
+                  detailItem={itemDetail}
+                  editName="Edit HB"
+                />
+              )}
             </div>
           </div>
         </div>

@@ -16,6 +16,8 @@ import {
   Alert,
 } from "antd";
 import hospitalApi from "../api/modules/hospital.api";
+import EditForm from "../component/editForm/EditForm";
+import { toast } from "react-toastify";
 
 const Patients = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -25,6 +27,8 @@ const Patients = () => {
   const [errorMessage, setErrorMessage] = useState();
   const [hospitalList, setHospitalList] = useState([]);
   const [form] = Form.useForm();
+  const [statusDoctorDetail, setStatusDoctorDetail] = useState(false);
+  const [itemDetail, setItemDetail] = useState({});
 
   const { Option } = Select;
 
@@ -79,6 +83,11 @@ const Patients = () => {
     },
   };
 
+  const handleCloseDetailItem = () => {
+    setStatusDoctorDetail(false);
+    fetchPatientList();
+  };
+
   const handleOk = () => {
     setIsModalOpen(false);
   };
@@ -86,13 +95,30 @@ const Patients = () => {
     setIsModalOpen(false);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     // Xóa row khỏi tableData
     if (patientList.length === 0) return;
     const newData = patientList.filter(
       (item) => !selectedRowKeys.includes(item.key)
     );
+    const itemDelete = patientList
+      .filter((item) => selectedRowKeys.includes(item.key))
+      .map((item) => item._id);
     setPatientList(newData);
+
+    // Xóa row khỏi database
+    const { response } = await patientApi.deletePatient(itemDelete);
+    if (response) {
+      toast.success(`Delete Success!`, {
+        position: "bottom-left",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
 
     // Cập nhật lại selectedRowKeys
     setSelectedRowKeys([]);
@@ -130,12 +156,15 @@ const Patients = () => {
 
   const items = [
     {
-      key: "1",
+      key: selectedRowKeys,
       label: "Edit",
-    },
-    {
-      key: "2",
-      label: "Delete",
+      onClick: async (itemSelect) => {
+        const getItemSelect = patientList.find(
+          (item) => item.key === parseInt(itemSelect.key)
+        );
+        await setItemDetail(getItemSelect);
+        await setStatusDoctorDetail(true);
+      },
     },
   ];
 
@@ -163,13 +192,7 @@ const Patients = () => {
       title: "Gender",
       dataIndex: "gender",
       key: "gender",
-      render: (_, { gender }) => (
-        <>
-        {
-          gender === 1 ? "Male" : "Female"
-        }
-        </>
-      ),
+      render: (_, { gender }) => <>{gender === 1 ? "Male" : "Female"}</>,
     },
     {
       title: "Phone",
@@ -232,7 +255,7 @@ const Patients = () => {
     if (error) {
       console.log(error);
     }
-  }
+  };
   useEffect(() => {
     fetchPatientList();
   }, []);
@@ -408,6 +431,13 @@ const Patients = () => {
                 data={patientList}
                 rowSelection={rowSelection}
                 rowKey={(record) => record.key}
+                onRow={(record, rowIndex) => {
+                  return {
+                    onClick: (event) => {
+                      setSelectedRowKeys([record.key]);
+                    },
+                  };
+                }}
               />
               <Modal
                 title="Confirm Delete"
@@ -417,6 +447,14 @@ const Patients = () => {
               >
                 <p>Are you sure to delete items selected !?</p>
               </Modal>
+              {statusDoctorDetail && (
+                <EditForm
+                  open={statusDoctorDetail}
+                  close={handleCloseDetailItem}
+                  detailItem={itemDetail}
+                  editName="Edit Patient"
+                />
+              )}
             </div>
           </div>
         </div>
