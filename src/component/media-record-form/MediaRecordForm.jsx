@@ -69,47 +69,43 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
 
   const handleCascaderChangeHospital = (value) => {
     setSelectedHospital(value);
-  }
+  };
 
   const handleCascaderChange = (value) => {
     setSelectedPatient(value);
-  }
+  };
 
   const handleCascaderChangeIOT = (value) => {
     setSelectedIOT(value);
-  }
-
-  
+  };
 
   const onFinish = async (mediaRecordFN) => {
     await mediaRecordApi.addMediaRecord(mediaRecordFN);
     await patientApi.updatePatientStatus(selectedPatient, true);
     await hearthBeatApi.updateHbStatus(selectedIOT, true);
-    const {responseHNCCCD, error} = await hearthBeatApi.updateHbPatientCCCD(selectedIOT, selectedPatient);
-    if(responseHNCCCD)
-    {
-      console.log("update success")
+    const { responseHNCCCD, error } = await hearthBeatApi.updateHbPatientCCCD(
+      selectedIOT,
+      selectedPatient
+    );
+    if (responseHNCCCD) {
+      await toast.success(`Add MediaRecord success`, {
+        position: "bottom-left",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    } else if (error) {
+      console.log(error);
     }
-    else if(error)
-    {
-      console.log(error)
-    }
-    await toast.success(`Add MediaRecord success`, {
-      position: "bottom-left",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
     form.resetFields();
     handleCancelModelAdd(false);
   };
 
   useEffect(() => {
-    if(!selectedHospital)
-    {
+    if (!selectedHospital) {
       form.setFieldValue("IOT_Id", null);
       setSelectedIOT(null);
     }
@@ -121,8 +117,10 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
         setDoctors(responseDoctor);
         const { responseHospital } = await hospitalApi.getAllCbb();
         setHospitals(responseHospital);
-        if(!selectedHospital) return;
-        const { responseHB } = await hearthBeatApi.getAllHBCbb(selectedHospital);
+        if (!selectedHospital) return;
+        const { responseHB } = await hearthBeatApi.getAllHBCbb(
+          selectedHospital
+        );
         setIOTs(responseHB);
       } catch (error) {
         console.log(error);
@@ -132,12 +130,10 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
   }, [selectedHospital]);
 
   useEffect(() => {
-    if(!selectedPatient) return;
+    if (!selectedPatient) return;
     const getPatientById = async () => {
       try {
-        const { response } = await patientApi.getPatientById(
-          selectedPatient
-        );
+        const { response } = await patientApi.getPatientById(selectedPatient);
         form.setFieldsValue({
           Age: response.age,
           gender: response.gender === 1 ? "Male" : "Female",
@@ -182,7 +178,7 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
                   },
                 ]}
               >
-                <Cascader options={patients} onChange={handleCascaderChange }/>
+                <Cascader options={patients} onChange={handleCascaderChange} />
               </Form.Item>
 
               <Form.Item
@@ -210,7 +206,10 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
                   },
                 ]}
               >
-                <Cascader options={hospitals} onChange={handleCascaderChangeHospital}/>
+                <Cascader
+                  options={hospitals}
+                  onChange={handleCascaderChangeHospital}
+                />
               </Form.Item>
 
               <Form.Item
@@ -224,7 +223,7 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
                   },
                 ]}
               >
-                <Cascader options={IOTs}  onChange={handleCascaderChangeIOT }/>
+                <Cascader options={IOTs} onChange={handleCascaderChangeIOT} />
               </Form.Item>
 
               <Form.Item
@@ -237,7 +236,7 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
                   },
                 ]}
               >
-                <DatePicker/>
+                <DatePicker />
               </Form.Item>
 
               <Form.Item
@@ -250,7 +249,7 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
                   },
                 ]}
               >
-                <DatePicker/>
+                <DatePicker />
               </Form.Item>
 
               <Form.Item
@@ -265,7 +264,7 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
                 ]}
               >
                 <InputNumber
-                 disabled
+                  disabled
                   style={{
                     width: "100%",
                   }}
@@ -282,7 +281,7 @@ const MediaRecordForm = ({ handleCancelModelAdd }) => {
                   },
                 ]}
               >
-                <Input disabled/>
+                <Input disabled />
               </Form.Item>
 
               <Form.Item

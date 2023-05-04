@@ -35,10 +35,6 @@ const EditForm = ({ open, close, detailItem, editName }) => {
       }
     }
     const { response } = await patientApi.updatePatient(values.user);
-    console.log(
-      "🚀 ~ file: EditForm.jsx:37 ~ onFinishPatientEditItem ~ response:",
-      response
-    );
     if (response) {
       toast.success(`Edit Success!`, {
         position: "bottom-left",
