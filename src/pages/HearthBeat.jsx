@@ -52,8 +52,8 @@ const HearthBeat = () => {
       key: "patient_cccd",
       render: (patientCccd) => (
         <div>
-          <p>{patientCccd.name}</p>
-          <p>{patientCccd.CCCD}</p>
+          <p>{patientCccd?.name}</p>
+          <p>{patientCccd?.CCCD}</p>
         </div>
       ),
     },

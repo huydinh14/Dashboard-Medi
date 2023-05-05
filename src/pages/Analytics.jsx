@@ -134,11 +134,11 @@ import hearthBeatApi from "../api/modules/hearthbeat.api";
 import { toast } from "react-toastify";
 
 const Analytics = () => {
-  const [data, setData] = useState([]);
+  // const [data, setData] = useState([]);
   const [series, setSeries] = useState([{ data: [] }]);
   const [listIOT, setListIOT] = useState([]);
   const [ip_mac, setIp_mac] = useState("");
-  const [statusToast, setStatusToast] = useState(false);
+  // const [statusToast, setStatusToast] = useState(false);
   const [options, setOptions] = useState({
     chart: {
       id: "realtime",
@@ -181,10 +181,15 @@ const Analytics = () => {
     },
   });
 
-  const handleMessage = (message) => {
-    const newData = message.message.split(",");
+  const handleMessage = async (message) => {
+    const newData = message.message.data;
     if (newData[0] === ip_mac) {
-        setData(newData);
+      const newTime = Date.now();
+      const y = Number(newData[1]);
+      setSeries((prevSeries) => {
+        const newSeries = [...prevSeries[0].data, { x: newTime, y }];
+        return [{ data: newSeries.slice(-10) }];
+      });
     }
   };
 
@@ -192,15 +197,15 @@ const Analytics = () => {
     setIp_mac(value[0]);
   };
 
-  useEffect(() => {
-    if (statusToast) {
-      toast.success(`Heartbeat: ${data[0]} Connected`, {
-        position: toast.POSITION.BOTTOM_LEFT,
-        autoClose: 3000,
-      });
-      setStatusToast(false);
-    }
-  }, [statusToast]);
+  // useEffect(() => {
+  //   if (statusToast) {
+  //     toast.success(`Heartbeat Connected`, {
+  //       position: toast.POSITION.BOTTOM_LEFT,
+  //       autoClose: 3000,
+  //     });
+  //     setStatusToast(false);
+  //   }
+  // }, [statusToast]);
 
   useEffect(() => {
     webSocketClient.addListener("warning", handleMessage);
@@ -218,15 +223,6 @@ const Analytics = () => {
   //     return [{ data: newSeries.slice(-10) }];
   //   });
   // }, [data]);
-
-  useEffect(() => {
-    const newTime = Date.now();
-    const y = Number(data[1]);
-    setSeries((prevSeries) => {
-      const newSeries = [...prevSeries[0].data, { x: newTime, y }];
-      return [{ data: newSeries.slice(-10) }];
-    });
-  }, [data]);
 
   const fetch_iot = async () => {
     const { response } = await hearthBeatApi.getAllHB();

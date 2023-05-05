@@ -42,7 +42,7 @@
         "role": "user"
     },
     {
-        "display_name": "Analytics",
+        "display_name": "Analytics-RT",
         "route": "/analytics",
         "icon": "bx bx-bar-chart-alt",
         "role": "user"

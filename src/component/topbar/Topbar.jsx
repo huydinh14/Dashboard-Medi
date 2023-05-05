@@ -68,16 +68,45 @@ const Topbar = () => {
     //   audio.play();
     //   window.location.reload();
     // }
-    await toast.error(message, {
-      position: "top-center",
-      autoClose: 10000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "colored",
-    });
+    if(message.warningType === "Bradycardia")
+    {
+      await toast.error(message.message, {
+        position: "top-center",
+        autoClose: 10000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+    }
+    else if(message.warningType === "Normal")
+    {
+      await toast.info(message.message, {
+        position: "top-center",
+        autoClose: 10000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+    }
+    else if(message.warningType === "Tachycardia")
+    {
+      await toast.warn(message.message, {
+        position: "top-center",
+        autoClose: 10000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+    }
     //setVisible(true);
   };
 
@@ -119,6 +148,7 @@ const Topbar = () => {
   );
 
   const handleMessage = async (data) => {
+    console.log("🚀 ~ file: Topbar.jsx:122 ~ handleMessage ~ data:", data)
     await setMessage(data.message);
   };
 

@@ -10,15 +10,6 @@ const DescriptionItem = ({ title, content }) => (
 );
 
 const Profile = ({open,close}) => {
-  console.log("🚀 ~ file: Profile.jsx:13 ~ Profile ~ close:", close)
-  console.log("🚀 ~ file: Profile.jsx:13 ~ Profile ~ open: 2222");
-  //const [open, setOpen] = useState(false);
-  //   const showDrawer = () => {
-  //     setOpen(true);
-  //   };
-  //   const onClose = () => {
-  //     setOpen(false);
-  //   };
   return (
     <>
       <Drawer

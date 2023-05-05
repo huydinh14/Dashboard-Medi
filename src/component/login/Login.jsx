@@ -16,7 +16,6 @@ const Login = ({ visible, onModalCancel}) => {
       setErrorMessage(undefined);
       setIsLoginRequesting(true);
       const { response, error } = await userApi.signin(values);
-      console.log("🚀 ~ file: Login.jsx:19 ~ onFinish ~ response:", response)
       setIsLoginRequesting(false);
       if (response) {
         dispatch(setUser(response));
